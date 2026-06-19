@@ -1,0 +1,50 @@
+{
+  "name": "MockExamResult",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "course_id": {
+      "type": "string"
+    },
+    "course_code": {
+      "type": "string"
+    },
+    "total_questions": {
+      "type": "number"
+    },
+    "correct_answers": {
+      "type": "number"
+    },
+    "wrong_answers": {
+      "type": "number"
+    },
+    "unanswered": {
+      "type": "number"
+    },
+    "score_percentage": {
+      "type": "number"
+    },
+    "time_allowed_seconds": {
+      "type": "number"
+    },
+    "time_spent_seconds": {
+      "type": "number"
+    },
+    "answers": {
+      "type": "array",
+      "description": "Array of answer objects with question_id, selected, correct, is_correct"
+    },
+    "passed": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "user_id",
+    "course_id",
+    "total_questions",
+    "correct_answers",
+    "score_percentage"
+  ]
+}

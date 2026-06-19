@@ -1,0 +1,59 @@
+{
+  "name": "PracticeAttempt",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "question_id": {
+      "type": "string"
+    },
+    "course_id": {
+      "type": "string"
+    },
+    "course_code": {
+      "type": "string"
+    },
+    "topic_id": {
+      "type": "string"
+    },
+    "selected_answer": {
+      "type": "string",
+      "enum": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ]
+    },
+    "correct_answer": {
+      "type": "string",
+      "enum": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ]
+    },
+    "is_correct": {
+      "type": "boolean"
+    },
+    "time_spent_seconds": {
+      "type": "number"
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "practice",
+        "mock_exam"
+      ],
+      "default": "practice"
+    }
+  },
+  "required": [
+    "user_id",
+    "question_id",
+    "selected_answer",
+    "is_correct"
+  ]
+}

@@ -59,7 +59,15 @@ module.exports = {
   				'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
   				border: 'hsl(var(--sidebar-border))',
   				ring: 'hsl(var(--sidebar-ring))'
-  			}
+  			},
+			success: {
+				DEFAULT: 'hsl(145, 60%, 40%)',
+				foreground: 'hsl(0, 0%, 100%)'
+			},
+			warning: {
+				DEFAULT: 'hsl(40, 90%, 50%)',
+				foreground: 'hsl(220, 20%, 10%)'
+			}
   		},
   		fontFamily: {
   			heading: ['var(--font-heading)'],
@@ -69,20 +77,12 @@ module.exports = {
   		},
   		keyframes: {
   			'accordion-down': {
-  				from: {
-  					height: '0'
-  				},
-  				to: {
-  					height: 'var(--radix-accordion-content-height)'
-  				}
+  				from: { height: '0' },
+  				to: { height: 'var(--radix-accordion-content-height)' }
   			},
   			'accordion-up': {
-  				from: {
-  					height: 'var(--radix-accordion-content-height)'
-  				},
-  				to: {
-  					height: '0'
-  				}
+  				from: { height: 'var(--radix-accordion-content-height)' },
+  				to: { height: '0' }
   			}
   		},
   		animation: {

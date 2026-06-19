@@ -1,0 +1,52 @@
+{
+  "name": "ActivationCode",
+  "type": "object",
+  "properties": {
+    "code": {
+      "type": "string",
+      "description": "Unique activation code e.g. EXP-8K4M-92P1"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "unused",
+        "used",
+        "revoked"
+      ],
+      "default": "unused"
+    },
+    "assigned_student_id": {
+      "type": "string",
+      "description": "User ID of student who used this code"
+    },
+    "assigned_student_email": {
+      "type": "string"
+    },
+    "assigned_student_name": {
+      "type": "string"
+    },
+    "date_activated": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "access_duration": {
+      "type": "string",
+      "enum": [
+        "full_time",
+        "30_days",
+        "60_days",
+        "90_days",
+        "180_days",
+        "365_days"
+      ],
+      "default": "full_time"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "code",
+    "status"
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "name": "StudentProfile",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "Reference to User"
+    },
+    "email": {
+      "type": "string"
+    },
+    "full_name": {
+      "type": "string"
+    },
+    "is_activated": {
+      "type": "boolean",
+      "default": false
+    },
+    "activation_code": {
+      "type": "string"
+    },
+    "activation_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "access_expires": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Null means full_time access"
+    },
+    "free_trial_used": {
+      "type": "object",
+      "description": "Map of course_id to number of free questions answered"
+    },
+    "total_questions_answered": {
+      "type": "number",
+      "default": 0
+    },
+    "total_correct": {
+      "type": "number",
+      "default": 0
+    },
+    "total_practice_sessions": {
+      "type": "number",
+      "default": 0
+    },
+    "total_mock_exams": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "user_id"
+  ]
+}

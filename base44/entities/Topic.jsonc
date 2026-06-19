@@ -1,0 +1,32 @@
+{
+  "name": "Topic",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "course_id": {
+      "type": "string",
+      "description": "Reference to Course"
+    },
+    "course_code": {
+      "type": "string",
+      "description": "Course code for display"
+    },
+    "description": {
+      "type": "string"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "question_count": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "title",
+    "course_id"
+  ]
+}
