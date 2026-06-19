@@ -5,6 +5,7 @@ import { useStudentProfile } from "@/hooks/useStudentProfile";
 import { BookOpen, Target, Trophy, Clock, ArrowRight, AlertCircle, CheckCircle, Calculator, Briefcase, TrendingUp, BarChart3, Users, Megaphone, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import Leaderboard from "@/components/dashboard/Leaderboard";
 
 const iconMap = {
   calculator: Calculator,
@@ -96,6 +97,9 @@ export default function Dashboard() {
           </div>
         ))}
       </div>
+
+      {/* Leaderboard */}
+      <Leaderboard />
 
       {/* Courses Grid */}
       <div>
