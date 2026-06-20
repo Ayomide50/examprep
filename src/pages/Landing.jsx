@@ -1,6 +1,7 @@
 import React from "react";
 import LandingNav from "@/components/landing/LandingNav";
 import HeroSection from "@/components/landing/HeroSection";
+import FeaturesSection from "@/components/landing/FeaturesSection";
 import CoursesSection from "@/components/landing/CoursesSection";
 import HowItWorksSection from "@/components/landing/HowItWorksSection";
 import TestimonialsSection from "@/components/landing/TestimonialsSection";
@@ -13,6 +14,7 @@ export default function Landing() {
     <div className="min-h-screen bg-background">
       <LandingNav />
       <HeroSection />
+      <FeaturesSection />
       <div id="courses"><CoursesSection /></div>
       <div id="how-it-works"><HowItWorksSection /></div>
       <div id="testimonials"><TestimonialsSection /></div>

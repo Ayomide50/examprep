@@ -9,10 +9,10 @@ export default function WhatsAppButton() {
       href={link}
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 group"
+      className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white pl-4 pr-5 py-3 rounded-full shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/30 transition-all duration-300 group"
     >
       <MessageCircle className="w-5 h-5" />
-      <span className="hidden group-hover:inline text-sm font-medium">Chat with us</span>
+      <span className="text-sm font-medium hidden group-hover:inline">Chat with us</span>
     </a>
   );
 }
