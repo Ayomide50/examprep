@@ -4,6 +4,8 @@ import HeroSection from "@/components/landing/HeroSection";
 import FeaturesSection from "@/components/landing/FeaturesSection";
 import CoursesSection from "@/components/landing/CoursesSection";
 import HowItWorksSection from "@/components/landing/HowItWorksSection";
+import PricingSection from "@/components/landing/PricingSection";
+import FAQSection from "@/components/landing/FAQSection";
 import TestimonialsSection from "@/components/landing/TestimonialsSection";
 import CTASection from "@/components/landing/CTASection";
 import Footer from "@/components/landing/Footer";
@@ -17,6 +19,8 @@ export default function Landing() {
       <FeaturesSection />
       <div id="courses"><CoursesSection /></div>
       <div id="how-it-works"><HowItWorksSection /></div>
+      <PricingSection />
+      <FAQSection />
       <div id="testimonials"><TestimonialsSection /></div>
       <CTASection />
       <Footer />

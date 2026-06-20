@@ -7,7 +7,8 @@ const navLinks = [
   { href: "#features", label: "Features" },
   { href: "#how-it-works", label: "How It Works" },
   { href: "#courses", label: "Courses" },
-  { href: "#testimonials", label: "Testimonials" },
+  { href: "#pricing", label: "Pricing" },
+  { href: "#faq", label: "FAQ" },
 ];
 
 export default function LandingNav() {
