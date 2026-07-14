@@ -3,12 +3,14 @@ import { useParams, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
 import { FREE_TRIAL_LIMIT, getWhatsAppLink } from "@/lib/constants";
-import { ArrowLeft, ArrowRight, CheckCircle, XCircle, RotateCcw, MessageCircle, Lock, BookOpen } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle, XCircle, RotateCcw, MessageCircle, Lock, BookOpen, Bookmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function PracticeMode() {
   const { courseId } = useParams();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { profile, user, loading: profileLoading, refresh } = useStudentProfile();
   const [course, setCourse] = useState(null);
   const [questions, setQuestions] = useState([]);
@@ -18,19 +20,22 @@ export default function PracticeMode() {
   const [loading, setLoading] = useState(true);
   const [trialBlocked, setTrialBlocked] = useState(false);
   const [questionsAnswered, setQuestionsAnswered] = useState(0);
+  const [bookmarkedIds, setBookmarkedIds] = useState(new Set());
 
   useEffect(() => {
     Promise.all([
       base44.entities.Course.filter({ id: courseId }),
       base44.entities.Question.filter({ course_id: courseId, is_active: true }),
-    ]).then(([courseData, qData]) => {
+      base44.entities.Bookmark.filter({ user_id: user?.id, course_id: courseId }, "-created_date", 500).catch(() => []),
+    ]).then(([courseData, qData, bookmarks]) => {
       if (courseData.length > 0) setCourse(courseData[0]);
       // Shuffle questions
       const shuffled = [...qData].sort(() => Math.random() - 0.5);
       setQuestions(shuffled);
+      setBookmarkedIds(new Set((bookmarks || []).map((b) => b.question_id)));
       setLoading(false);
     });
-  }, [courseId]);
+  }, [courseId, user]);
 
   useEffect(() => {
     if (!profileLoading && profile && !profile.is_activated) {
@@ -98,6 +103,38 @@ export default function PracticeMode() {
   const handleRetry = () => {
     setSelected(null);
     setShowResult(false);
+  };
+
+  const toggleBookmark = async () => {
+    const question = questions[currentIndex];
+    if (!question) return;
+
+    if (bookmarkedIds.has(question.id)) {
+      const bookmarks = await base44.entities.Bookmark.filter({ user_id: user.id, question_id: question.id });
+      await Promise.all(bookmarks.map((b) => base44.entities.Bookmark.delete(b.id)));
+      setBookmarkedIds((prev) => {
+        const next = new Set(prev);
+        next.delete(question.id);
+        return next;
+      });
+      toast({ title: "Bookmark removed" });
+    } else {
+      await base44.entities.Bookmark.create({
+        user_id: user.id,
+        question_id: question.id,
+        course_id: courseId,
+        course_code: course?.code || "",
+        question_text: question.question_text,
+        option_a: question.option_a,
+        option_b: question.option_b,
+        option_c: question.option_c,
+        option_d: question.option_d,
+        correct_answer: question.correct_answer,
+        explanation: question.explanation || "",
+      });
+      setBookmarkedIds((prev) => new Set(prev).add(question.id));
+      toast({ title: "Question bookmarked" });
+    }
   };
 
   if (loading || profileLoading) {
@@ -173,9 +210,22 @@ export default function PracticeMode() {
 
       {/* Question */}
       <div className="bg-card border border-border/60 rounded-xl p-6 md:p-8">
-        <h2 className="font-heading text-lg font-semibold leading-relaxed mb-6">
-          {question.question_text}
-        </h2>
+        <div className="flex items-start justify-between gap-4 mb-6">
+          <h2 className="font-heading text-lg font-semibold leading-relaxed">
+            {question.question_text}
+          </h2>
+          <button
+            onClick={toggleBookmark}
+            className={`p-2 rounded-lg shrink-0 transition-colors ${
+              bookmarkedIds.has(question.id)
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:bg-muted"
+            }`}
+            title={bookmarkedIds.has(question.id) ? "Remove bookmark" : "Bookmark this question"}
+          >
+            <Bookmark className={`w-5 h-5 ${bookmarkedIds.has(question.id) ? "fill-primary" : ""}`} />
+          </button>
+        </div>
 
         <div className="space-y-3">
           {options.map((opt) => {

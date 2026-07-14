@@ -1,0 +1,51 @@
+{
+  "name": "Bookmark",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "Reference to User"
+    },
+    "question_id": {
+      "type": "string",
+      "description": "Reference to Question"
+    },
+    "course_id": {
+      "type": "string"
+    },
+    "course_code": {
+      "type": "string"
+    },
+    "question_text": {
+      "type": "string"
+    },
+    "option_a": {
+      "type": "string"
+    },
+    "option_b": {
+      "type": "string"
+    },
+    "option_c": {
+      "type": "string"
+    },
+    "option_d": {
+      "type": "string"
+    },
+    "correct_answer": {
+      "type": "string",
+      "enum": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ]
+    },
+    "explanation": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "user_id",
+    "question_id"
+  ]
+}

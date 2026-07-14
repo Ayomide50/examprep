@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
-import { Clock, Trophy, XCircle, CheckCircle, Trash2, Loader2 } from "lucide-react";
+import { Clock, Trophy, XCircle, CheckCircle, Trash2, Loader2, Bookmark } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/components/ui/use-toast";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,20 +20,25 @@ import moment from "moment";
 
 export default function History() {
   const { user, loading: profileLoading, refresh: refreshProfile } = useStudentProfile();
+  const { toast } = useToast();
   const [mockResults, setMockResults] = useState([]);
   const [practiceAttempts, setPracticeAttempts] = useState([]);
+  const [bookmarks, setBookmarks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [clearing, setClearing] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [expandedBookmark, setExpandedBookmark] = useState(null);
 
   const loadHistory = () => {
     if (user) {
       Promise.all([
         base44.entities.MockExamResult.filter({ user_id: user.id }, "-created_date", 50),
         base44.entities.PracticeAttempt.filter({ user_id: user.id }, "-created_date", 50),
-      ]).then(([mocks, practices]) => {
+        base44.entities.Bookmark.filter({ user_id: user.id }, "-created_date", 200),
+      ]).then(([mocks, practices, bms]) => {
         setMockResults(mocks);
         setPracticeAttempts(practices);
+        setBookmarks(bms);
         setLoading(false);
       });
     }
@@ -128,6 +134,7 @@ export default function History() {
         <TabsList className="rounded-full">
           <TabsTrigger value="mock" className="rounded-full">Mock Exams ({mockResults.length})</TabsTrigger>
           <TabsTrigger value="practice" className="rounded-full">Practice ({practiceAttempts.length})</TabsTrigger>
+          <TabsTrigger value="bookmarks" className="rounded-full">Bookmarks ({bookmarks.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="mock" className="mt-6">
@@ -195,6 +202,87 @@ export default function History() {
                   </span>
                 </div>
               ))}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="bookmarks" className="mt-6">
+          {bookmarks.length === 0 ? (
+            <div className="text-center py-16">
+              <Bookmark className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+              <p className="text-muted-foreground">No bookmarked questions yet</p>
+              <Link to="/courses" className="text-sm text-primary hover:underline mt-2 inline-block">Start practicing</Link>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {bookmarks.map((bm) => {
+                const options = [
+                  { key: "A", text: bm.option_a },
+                  { key: "B", text: bm.option_b },
+                  { key: "C", text: bm.option_c },
+                  { key: "D", text: bm.option_d },
+                ].filter((o) => o.text);
+
+                const isExpanded = expandedBookmark === bm.id;
+
+                return (
+                  <div key={bm.id} className="bg-card border border-border/60 rounded-xl p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <button
+                        onClick={() => setExpandedBookmark(isExpanded ? null : bm.id)}
+                        className="text-left flex-1"
+                      >
+                        <div className="flex items-center gap-2 mb-1">
+                          <Bookmark className="w-4 h-4 text-primary fill-primary shrink-0" />
+                          <span className="text-xs text-muted-foreground">{bm.course_code}</span>
+                        </div>
+                        <p className="text-sm font-medium leading-relaxed">{bm.question_text}</p>
+                      </button>
+                      <button
+                        onClick={async () => {
+                          await base44.entities.Bookmark.delete(bm.id);
+                          setBookmarks(bookmarks.filter((b) => b.id !== bm.id));
+                          toast({ title: "Bookmark removed" });
+                        }}
+                        className="p-1.5 hover:bg-red-50 rounded-md shrink-0"
+                        title="Remove bookmark"
+                      >
+                        <Trash2 className="w-3.5 h-3.5 text-red-500" />
+                      </button>
+                    </div>
+                    {isExpanded && (
+                      <div className="mt-4 space-y-2">
+                        {options.map((opt) => (
+                          <div
+                            key={opt.key}
+                            className={`flex items-start gap-2 p-2 rounded-lg text-sm ${
+                              opt.key === bm.correct_answer
+                                ? "bg-green-50 border border-green-200"
+                                : ""
+                            }`}
+                          >
+                            <span className={`w-5 h-5 rounded flex items-center justify-center text-xs font-semibold shrink-0 ${
+                              opt.key === bm.correct_answer ? "bg-green-500 text-white" : "bg-muted text-muted-foreground"
+                            }`}>
+                              {opt.key}
+                            </span>
+                            <span className="pt-0.5">{opt.text}</span>
+                            {opt.key === bm.correct_answer && (
+                              <CheckCircle className="w-4 h-4 text-green-500 ml-auto shrink-0" />
+                            )}
+                          </div>
+                        ))}
+                        {bm.explanation && (
+                          <div className="mt-3 p-3 rounded-lg bg-blue-50 border border-blue-100">
+                            <p className="text-xs font-medium text-blue-900 mb-1">Explanation</p>
+                            <p className="text-xs text-blue-800 leading-relaxed">{bm.explanation}</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
         </TabsContent>
