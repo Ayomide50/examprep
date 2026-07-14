@@ -2,17 +2,30 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
-import { Clock, Trophy, XCircle, CheckCircle } from "lucide-react";
+import { Clock, Trophy, XCircle, CheckCircle, Trash2, Loader2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import moment from "moment";
 
 export default function History() {
-  const { user, loading: profileLoading } = useStudentProfile();
+  const { user, loading: profileLoading, refresh: refreshProfile } = useStudentProfile();
   const [mockResults, setMockResults] = useState([]);
   const [practiceAttempts, setPracticeAttempts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [clearing, setClearing] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
-  useEffect(() => {
+  const loadHistory = () => {
     if (user) {
       Promise.all([
         base44.entities.MockExamResult.filter({ user_id: user.id }, "-created_date", 50),
@@ -23,7 +36,40 @@ export default function History() {
         setLoading(false);
       });
     }
+  };
+
+  useEffect(() => {
+    loadHistory();
   }, [user]);
+
+  const handleClearHistory = async () => {
+    setClearing(true);
+    try {
+      await Promise.all([
+        base44.entities.MockExamResult.deleteMany({ user_id: user.id }),
+        base44.entities.PracticeAttempt.deleteMany({ user_id: user.id }),
+      ]);
+
+      const profile = await base44.entities.StudentProfile.filter({ user_id: user.id });
+      if (profile.length > 0) {
+        await base44.entities.StudentProfile.update(profile[0].id, {
+          total_questions_answered: 0,
+          total_correct: 0,
+          total_practice_sessions: 0,
+          total_mock_exams: 0,
+        });
+      }
+
+      setMockResults([]);
+      setPracticeAttempts([]);
+      refreshProfile();
+      setDialogOpen(false);
+    } catch (error) {
+      console.error("Failed to clear history:", error);
+    } finally {
+      setClearing(false);
+    }
+  };
 
   if (loading || profileLoading) {
     return (
@@ -33,11 +79,49 @@ export default function History() {
     );
   }
 
+  const hasHistory = mockResults.length > 0 || practiceAttempts.length > 0;
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      <div>
-        <h1 className="font-display text-2xl md:text-3xl font-bold">History</h1>
-        <p className="text-muted-foreground mt-1">Your practice and exam history</p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="font-display text-2xl md:text-3xl font-bold">History</h1>
+          <p className="text-muted-foreground mt-1">Your practice and exam history</p>
+        </div>
+        {hasHistory && (
+          <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <AlertDialogTrigger asChild>
+              <button className="inline-flex items-center gap-2 text-sm font-medium text-destructive hover:text-destructive/80 border border-destructive/30 hover:bg-destructive/5 rounded-lg px-3 py-2 transition-colors shrink-0">
+                <Trash2 className="w-4 h-4" />
+                Clear History
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Clear all history?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently delete all your mock exam results and practice attempts. Your progress stats will also be reset. This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={clearing}>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleClearHistory}
+                  disabled={clearing}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  {clearing ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin mr-1" /> Clearing...
+                    </>
+                  ) : (
+                    "Yes, Clear All"
+                  )}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
       </div>
 
       <Tabs defaultValue="mock" className="w-full">

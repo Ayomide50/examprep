@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
-import { BookOpen, LayoutDashboard, GraduationCap, FileText, Clock, KeyRound, LogOut, Menu, X, User } from "lucide-react";
+import { BookOpen, LayoutDashboard, GraduationCap, FileText, Clock, KeyRound, LogOut, Menu, X, User, Pencil } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import WhatsAppButton from "@/components/WhatsAppButton";
 
 const navItems = [
   { path: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
   { path: "/courses", icon: GraduationCap, label: "Courses" },
+  { path: "/courses", icon: Pencil, label: "Practice" },
   { path: "/mock-exams", icon: FileText, label: "Mock Exams" },
   { path: "/history", icon: Clock, label: "History" },
   { path: "/activate", icon: KeyRound, label: "Activate" },
