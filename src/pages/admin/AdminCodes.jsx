@@ -1,11 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { generateActivationCode } from "@/lib/constants";
-import { KeyRound, Plus, Search, Trash2, Copy, CheckCircle, XCircle, RefreshCw } from "lucide-react";
+import { KeyRound, Plus, Search, Trash2, Copy, CheckCircle, XCircle, RefreshCw, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/components/ui/use-toast";
 
 export default function AdminCodes() {
@@ -18,6 +29,8 @@ export default function AdminCodes() {
   const [showGenerate, setShowGenerate] = useState(false);
   const [genCount, setGenCount] = useState(1);
   const [genDuration, setGenDuration] = useState("full_time");
+  const [clearing, setClearing] = useState(false);
+  const [clearOpen, setClearOpen] = useState(false);
 
   const loadCodes = async () => {
     const data = await base44.entities.ActivationCode.list("-created_date", 200);
@@ -64,6 +77,21 @@ export default function AdminCodes() {
     loadCodes();
   };
 
+  const handleClearUnusedRevoked = async () => {
+    setClearing(true);
+    try {
+      await base44.entities.ActivationCode.deleteMany({ status: "unused" });
+      await base44.entities.ActivationCode.deleteMany({ status: "revoked" });
+      toast({ title: "Unused and revoked codes cleared" });
+      setClearOpen(false);
+      loadCodes();
+    } catch (error) {
+      toast({ title: "Failed to clear codes", variant: "destructive" });
+    } finally {
+      setClearing(false);
+    }
+  };
+
   const copyCode = (code) => {
     navigator.clipboard.writeText(code);
     toast({ title: "Code copied to clipboard" });
@@ -92,9 +120,36 @@ export default function AdminCodes() {
           <h1 className="font-display text-2xl md:text-3xl font-bold">Activation Codes</h1>
           <p className="text-muted-foreground mt-1">Generate and manage activation codes</p>
         </div>
-        <Button className="rounded-full gap-2" onClick={() => setShowGenerate(true)}>
-          <Plus className="w-4 h-4" /> Generate Codes
-        </Button>
+        <div className="flex items-center gap-2">
+          <AlertDialog open={clearOpen} onOpenChange={setClearOpen}>
+            <AlertDialogTrigger asChild>
+              <Button variant="outline" className="rounded-full gap-2" disabled={clearing}>
+                <Trash2 className="w-4 h-4" /> Clear Unused & Revoked
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Clear all unused and revoked codes?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently delete all activation codes with "unused" or "revoked" status. Used codes will not be affected. This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={clearing}>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleClearUnusedRevoked}
+                  disabled={clearing}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  {clearing ? <><Loader2 className="w-4 h-4 animate-spin mr-1" /> Clearing...</> : "Yes, Clear All"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+          <Button className="rounded-full gap-2" onClick={() => setShowGenerate(true)}>
+            <Plus className="w-4 h-4" /> Generate Codes
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
