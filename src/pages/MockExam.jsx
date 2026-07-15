@@ -94,7 +94,7 @@ export default function MockExam() {
     const timeSpent = Math.round((Date.now() - startTimeRef.current) / 1000);
     let correct = 0;
     const answerDetails = questions.map((q, i) => {
-      const sel = answers[i] || null;
+      const sel = answers[i] || "";
       const isCorrect = sel === q.correct_answer;
       if (isCorrect) correct++;
       return { question_id: q.id, selected: sel, correct: q.correct_answer, is_correct: isCorrect };

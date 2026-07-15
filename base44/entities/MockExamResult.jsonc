@@ -34,6 +34,23 @@
     },
     "answers": {
       "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "question_id": {
+            "type": "string"
+          },
+          "selected": {
+            "type": "string"
+          },
+          "correct": {
+            "type": "string"
+          },
+          "is_correct": {
+            "type": "boolean"
+          }
+        }
+      },
       "description": "Array of answer objects with question_id, selected, correct, is_correct"
     },
     "passed": {
