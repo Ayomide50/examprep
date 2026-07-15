@@ -9,7 +9,7 @@ export default function AuthLayout({ icon: Icon, title, subtitle, footer, childr
         <div className="text-center mb-10">
           <Link to="/landing" className="inline-flex items-center gap-2 mb-6">
             <BookOpen className="w-6 h-6 text-primary" />
-            <span className="font-display font-bold text-xl">ExamPrep CBT</span>
+            <span className="font-display font-bold text-xl">MyStudyApp</span>
           </Link>
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary mb-4">
             <Icon className="w-7 h-7 text-primary-foreground" aria-hidden="true" />

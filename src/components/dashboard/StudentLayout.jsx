@@ -29,7 +29,7 @@ export default function StudentLayout() {
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-card/80 backdrop-blur-xl border-b border-border h-14 flex items-center justify-between px-4">
         <Link to="/dashboard" className="flex items-center gap-2">
           <BookOpen className="w-5 h-5 text-primary" />
-          <span className="font-display font-bold">ExamPrep CBT</span>
+          <span className="font-display font-bold">MyStudyApp</span>
         </Link>
         <div className="flex items-center gap-1">
           <ThemeToggle />
@@ -44,7 +44,7 @@ export default function StudentLayout() {
         <div className="flex flex-col h-full">
           <div className="hidden lg:flex items-center gap-2 p-6 border-b border-border">
             <BookOpen className="w-6 h-6 text-primary" />
-            <span className="font-display font-bold text-lg">ExamPrep CBT</span>
+            <span className="font-display font-bold text-lg">MyStudyApp</span>
           </div>
 
           <nav className="flex-1 p-4 pt-20 lg:pt-4 space-y-1">

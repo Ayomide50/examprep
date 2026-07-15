@@ -30,10 +30,10 @@ export default function Footer() {
               <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
                 <BookOpen className="w-4 h-4 text-white" />
               </div>
-              <span className="font-display font-bold text-lg">ExamPrep CBT</span>
+              <span className="font-display font-bold text-lg">MyStudyApp</span>
             </div>
             <p className="text-sm text-gray-400 leading-relaxed mb-5 max-w-xs">
-              Nigeria's premier CBT exam preparation platform. Practice 700+ questions across 7 courses with expert explanations.
+              Nigeria's premier CBT exam preparation platform. Practice 700+ questions across 7 courses with expert explanations. MyStudyApp helps you pass with confidence.
             </p>
             <a
               href={waLink}
@@ -77,7 +77,7 @@ export default function Footer() {
 
         <div className="mt-12 pt-8 border-t border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-gray-500">
-            © {new Date().getFullYear()} ExamPrep CBT. All rights reserved.
+            © {new Date().getFullYear()} MyStudyApp. All rights reserved.
           </p>
           <p className="text-sm text-gray-500">Built for Nigerian students.</p>
         </div>

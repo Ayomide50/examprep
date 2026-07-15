@@ -16,7 +16,7 @@ export const COURSE_ICONS = {
 
 export const getWhatsAppLink = (email) => {
   const message = encodeURIComponent(
-    `Hello Admin, I would like to activate my ExamPrep CBT account. My registered email is ${email}.`
+    `Hello Admin, I would like to activate my MyStudyApp account. My registered email is ${email}.`
   );
   return `https://wa.me/${ADMIN_WHATSAPP}?text=${message}`;
 };

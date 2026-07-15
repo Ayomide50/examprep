@@ -19,7 +19,7 @@ export default function CTASection() {
               Ready to Start Preparing?
             </h2>
             <p className="text-white/70 text-lg max-w-xl mx-auto mb-10 leading-relaxed">
-              Join hundreds of students already using ExamPrep CBT to boost their exam scores. Don't wait until it's too late — start practicing today.
+              Join hundreds of students already using MyStudyApp to boost their exam scores. Don't wait until it's too late — start practicing today.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">

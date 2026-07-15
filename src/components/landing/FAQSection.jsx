@@ -24,7 +24,7 @@ const faqs = [
   },
   {
     question: "Can I access the platform on my phone?",
-    answer: "Absolutely. ExamPrep CBT is fully mobile-responsive and works smoothly on smartphones, tablets, and desktop computers. Practice anywhere, anytime with the same great experience on any device.",
+    answer: "Absolutely. MyStudyApp is fully mobile-responsive and works smoothly on smartphones, tablets, and desktop computers. Practice anywhere, anytime with the same great experience on any device.",
   },
   {
     question: "What if I lose my activation code?",
@@ -50,7 +50,7 @@ export default function FAQSection() {
             Frequently Asked <span className="text-primary">Questions</span>
           </h2>
           <p className="text-muted-foreground text-lg">
-            Everything you need to know about ExamPrep CBT
+            Everything you need to know about MyStudyApp
           </p>
         </div>
 

@@ -4,7 +4,7 @@ import { Star } from "lucide-react";
 const testimonials = [
   {
     title: "Finally passed my exams",
-    quote: "I failed twice before discovering ExamPrep CBT. The detailed explanations helped me understand concepts I'd been struggling with for months.",
+    quote: "I failed twice before discovering MyStudyApp. The detailed explanations helped me understand concepts I'd been struggling with for months.",
     name: "Adebayo O.",
     role: "300 Level Student",
     initials: "AO",
