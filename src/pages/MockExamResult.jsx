@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { Trophy, XCircle, CheckCircle, Clock, ArrowLeft, RotateCcw, Home } from "lucide-react";
+import { Trophy, XCircle, CheckCircle, Clock, ArrowLeft, RotateCcw, Home, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { PASS_MARK } from "@/lib/constants";
@@ -10,14 +10,29 @@ export default function MockExamResult() {
   const { resultId } = useParams();
   const navigate = useNavigate();
   const [result, setResult] = useState(null);
+  const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [expandedQs, setExpandedQs] = useState({});
 
   useEffect(() => {
-    base44.entities.MockExamResult.filter({ id: resultId }).then((data) => {
-      if (data.length > 0) setResult(data[0]);
+    base44.entities.MockExamResult.filter({ id: resultId }).then(async (data) => {
+      if (data.length > 0) {
+        const res = data[0];
+        setResult(res);
+        // Fetch question details for each answer
+        const qIds = (res.answers || []).map((a) => a.question_id).filter(Boolean);
+        if (qIds.length > 0) {
+          const qData = await base44.entities.Question.filter({ id: { $in: qIds } });
+          setQuestions(qData);
+        }
+      }
       setLoading(false);
     });
   }, [resultId]);
+
+  const toggleQuestion = (idx) => {
+    setExpandedQs((prev) => ({ ...prev, [idx]: !prev[idx] }));
+  };
 
   if (loading) {
     return (
@@ -93,6 +108,98 @@ export default function MockExamResult() {
           </div>
         </div>
       </div>
+
+      {/* Question Review */}
+      {result.answers && result.answers.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="font-heading text-lg font-semibold">Question Review</h2>
+          {result.answers.map((ans, idx) => {
+            const question = questions.find((q) => q.id === ans.question_id);
+            if (!question) return null;
+
+            const options = [
+              { key: "A", text: question.option_a },
+              { key: "B", text: question.option_b },
+              { key: "C", text: question.option_c },
+              { key: "D", text: question.option_d },
+            ].filter((o) => o.text);
+
+            const isExpanded = expandedQs[idx];
+            const wasAnswered = ans.selected && ans.selected !== "";
+
+            return (
+              <div key={idx} className="bg-card border border-border/60 rounded-xl overflow-hidden">
+                <button
+                  onClick={() => toggleQuestion(idx)}
+                  className="w-full flex items-start gap-3 p-4 text-left hover:bg-muted/30 transition-colors"
+                >
+                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
+                    ans.is_correct ? "bg-green-100 text-green-600" : wasAnswered ? "bg-red-100 text-red-500" : "bg-amber-100 text-amber-600"
+                  }`}>
+                    {ans.is_correct ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
+                  </div>
+                  <span className="text-sm font-medium pt-0.5 flex-1">
+                    <span className="text-muted-foreground">Q{idx + 1}.</span> {question.question_text}
+                  </span>
+                  {isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground shrink-0 mt-1" /> : <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0 mt-1" />}
+                </button>
+
+                {isExpanded && (
+                  <div className="px-4 pb-4 pt-1 space-y-2 border-t border-border/40">
+                    {options.map((opt) => {
+                      const isCorrect = opt.key === ans.correct;
+                      const isSelected = opt.key === ans.selected;
+
+                      let style = "border-border/40";
+                      if (isCorrect) {
+                        style = "border-green-500 bg-green-50";
+                      } else if (isSelected && !isCorrect) {
+                        style = "border-red-500 bg-red-50";
+                      }
+
+                      return (
+                        <div key={opt.key} className={`flex items-start gap-3 p-3 rounded-lg border ${style}`}>
+                          <span className={`w-7 h-7 rounded-lg flex items-center justify-center text-sm font-semibold shrink-0 ${
+                            isCorrect
+                              ? "bg-green-500 text-white"
+                              : isSelected && !isCorrect
+                              ? "bg-red-500 text-white"
+                              : "bg-muted text-muted-foreground"
+                          }`}>
+                            {opt.key}
+                          </span>
+                          <span className="text-sm leading-relaxed pt-1 flex-1">{opt.text}</span>
+                          {isCorrect && (
+                            <span className="flex items-center gap-1 text-xs font-medium text-green-600 shrink-0 pt-1.5">
+                              <CheckCircle className="w-3.5 h-3.5" /> Correct Answer
+                            </span>
+                          )}
+                          {isSelected && !isCorrect && (
+                            <span className="flex items-center gap-1 text-xs font-medium text-red-500 shrink-0 pt-1.5">
+                              <XCircle className="w-3.5 h-3.5" /> Your Answer
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
+
+                    {!wasAnswered && (
+                      <p className="text-xs text-amber-600 font-medium pt-1">You did not answer this question.</p>
+                    )}
+
+                    {question.explanation && (
+                      <div className="mt-2 p-3 rounded-lg bg-blue-50 border border-blue-100">
+                        <p className="text-xs font-medium text-blue-900 mb-1">Explanation</p>
+                        <p className="text-sm text-blue-800 leading-relaxed">{question.explanation}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Actions */}
       <div className="flex flex-wrap gap-3 justify-center">
