@@ -63,12 +63,12 @@ export default function AdminCourses() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl md:text-3xl font-bold">Courses</h1>
           <p className="text-muted-foreground mt-1">{courses.length} courses</p>
         </div>
-        <Button className="rounded-full gap-2" onClick={() => { setEditing(null); setForm({ code: "", title: "", description: "", icon: "briefcase" }); setShowForm(true); }}>
+        <Button className="rounded-full gap-2 w-full sm:w-auto" onClick={() => { setEditing(null); setForm({ code: "", title: "", description: "", icon: "briefcase" }); setShowForm(true); }}>
           <Plus className="w-4 h-4" /> Add Course
         </Button>
       </div>

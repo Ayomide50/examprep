@@ -153,13 +153,13 @@ export default function MockExam() {
   return (
     <div className="max-w-3xl mx-auto space-y-4">
       {/* Timer bar */}
-      <div className="bg-card border border-border/60 rounded-xl p-3 flex items-center justify-between sticky top-0 z-10">
-        <span className="text-sm font-medium">{course?.code}</span>
-        <div className={`flex items-center gap-2 text-sm font-mono font-semibold ${timeLeft < 300 ? "text-red-500" : ""}`}>
+      <div className="bg-card border border-border/60 rounded-xl p-3 flex items-center justify-between gap-2 sticky top-0 z-10">
+        <span className="text-sm font-medium truncate">{course?.code}</span>
+        <div className={`flex items-center gap-1.5 text-sm font-mono font-semibold shrink-0 ${timeLeft < 300 ? "text-red-500" : ""}`}>
           <Clock className="w-4 h-4" />
           {formatTime(timeLeft)}
         </div>
-        <span className="text-sm text-muted-foreground">{answeredCount}/{questions.length}</span>
+        <span className="text-sm text-muted-foreground shrink-0">{answeredCount}/{questions.length}</span>
       </div>
 
       {/* Question */}
@@ -192,47 +192,47 @@ export default function MockExam() {
       </div>
 
       {/* Navigation */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         <Button
           variant="outline"
           size="sm"
-          className="rounded-full gap-1"
+          className="rounded-full gap-1 shrink-0"
           disabled={currentIndex === 0}
           onClick={() => setCurrentIndex(currentIndex - 1)}
         >
-          <ChevronLeft className="w-4 h-4" /> Previous
+          <ChevronLeft className="w-4 h-4" /> <span className="hidden sm:inline">Previous</span>
         </Button>
 
         <Button
           variant="destructive"
           size="sm"
-          className="rounded-full gap-1"
+          className="rounded-full gap-1 shrink-0"
           disabled={submitting}
           onClick={() => setShowConfirm(true)}
         >
-          <Flag className="w-3 h-3" /> Submit Exam
+          <Flag className="w-3 h-3" /> Submit
         </Button>
 
         <Button
           variant="outline"
           size="sm"
-          className="rounded-full gap-1"
+          className="rounded-full gap-1 shrink-0"
           disabled={currentIndex === questions.length - 1}
           onClick={() => setCurrentIndex(currentIndex + 1)}
         >
-          Next <ChevronRight className="w-4 h-4" />
+          <span className="hidden sm:inline">Next</span> <ChevronRight className="w-4 h-4" />
         </Button>
       </div>
 
       {/* Question navigator */}
       <div className="bg-card border border-border/60 rounded-xl p-4">
-        <p className="text-xs text-muted-foreground mb-3">Question Navigator</p>
+        <p className="text-xs text-muted-foreground mb-3">Question Navigator ({answeredCount}/{questions.length} answered)</p>
         <div className="flex flex-wrap gap-2">
           {questions.map((_, i) => (
             <button
               key={i}
               onClick={() => setCurrentIndex(i)}
-              className={`w-8 h-8 rounded-lg text-xs font-semibold transition-colors ${
+              className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg text-xs font-semibold transition-colors ${
                 i === currentIndex
                   ? "bg-primary text-primary-foreground"
                   : answers[i]

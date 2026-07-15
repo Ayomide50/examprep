@@ -314,7 +314,7 @@ export default function PracticeMode() {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <button onClick={handleStop} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
           <ArrowLeft className="w-4 h-4" /> Stop &amp; See Results
         </button>
@@ -350,6 +350,9 @@ export default function PracticeMode() {
             <SelectItem value="20">20 Questions</SelectItem>
             <SelectItem value="30">30 Questions</SelectItem>
             <SelectItem value="50">50 Questions</SelectItem>
+            <SelectItem value="60">60 Questions</SelectItem>
+            <SelectItem value="80">80 Questions</SelectItem>
+            <SelectItem value="100">100 Questions</SelectItem>
             <SelectItem value="unlimited">All Questions</SelectItem>
           </SelectContent>
         </Select>
@@ -442,7 +445,7 @@ export default function PracticeMode() {
         )}
 
         {/* Actions */}
-        <div className="flex gap-3 mt-6">
+        <div className="flex flex-wrap gap-3 mt-6">
           <Button variant="outline" className="rounded-full gap-2 text-destructive hover:text-destructive" onClick={handleStop}>
             <Square className="w-4 h-4 fill-current" /> Stop
           </Button>

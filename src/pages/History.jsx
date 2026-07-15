@@ -131,10 +131,10 @@ export default function History() {
       </div>
 
       <Tabs defaultValue="mock" className="w-full">
-        <TabsList className="rounded-full">
-          <TabsTrigger value="mock" className="rounded-full">Mock Exams ({mockResults.length})</TabsTrigger>
-          <TabsTrigger value="practice" className="rounded-full">Practice ({practiceAttempts.length})</TabsTrigger>
-          <TabsTrigger value="bookmarks" className="rounded-full">Bookmarks ({bookmarks.length})</TabsTrigger>
+        <TabsList className="grid grid-cols-3 w-full rounded-full">
+          <TabsTrigger value="mock" className="rounded-full text-xs sm:text-sm">Mock Exams ({mockResults.length})</TabsTrigger>
+          <TabsTrigger value="practice" className="rounded-full text-xs sm:text-sm">Practice ({practiceAttempts.length})</TabsTrigger>
+          <TabsTrigger value="bookmarks" className="rounded-full text-xs sm:text-sm">Bookmarks ({bookmarks.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="mock" className="mt-6">

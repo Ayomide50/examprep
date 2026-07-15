@@ -227,7 +227,7 @@ export default function Dashboard() {
                     </p>
                     <p className="text-xs text-muted-foreground">{exam.passed ? "Passed" : "Failed"}</p>
                   </div>
-                  <Progress value={exam.score_percentage} className="w-16 h-2" />
+                  <Progress value={exam.score_percentage} className="w-16 h-2 hidden sm:block" />
                 </div>
               </div>
             ))}

@@ -83,6 +83,9 @@ export default function MockExams() {
               <SelectItem value="20">20</SelectItem>
               <SelectItem value="30">30</SelectItem>
               <SelectItem value="50">50</SelectItem>
+              <SelectItem value="60">60</SelectItem>
+              <SelectItem value="80">80</SelectItem>
+              <SelectItem value="100">100</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -99,6 +102,9 @@ export default function MockExams() {
               <SelectItem value="30">30 min</SelectItem>
               <SelectItem value="45">45 min</SelectItem>
               <SelectItem value="60">60 min</SelectItem>
+              <SelectItem value="75">75 min</SelectItem>
+              <SelectItem value="90">90 min</SelectItem>
+              <SelectItem value="120">120 min</SelectItem>
             </SelectContent>
           </Select>
         </div>
