@@ -3,9 +3,10 @@ import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
 import { PASS_MARK } from "@/lib/constants";
-import { Clock, ChevronLeft, ChevronRight, Flag } from "lucide-react";
+import { Clock, ChevronLeft, ChevronRight, Flag, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function MockExam() {
   const { courseId } = useParams();
@@ -16,12 +17,14 @@ export default function MockExam() {
   const timeLimitSeconds = timeLimitMinutes * 60;
 
   const { profile, user } = useStudentProfile();
+  const { toast } = useToast();
   const [course, setCourse] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [timeLeft, setTimeLeft] = useState(timeLimitSeconds);
   const [finished, setFinished] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(true);
   const startTimeRef = useRef(Date.now());
@@ -39,6 +42,13 @@ export default function MockExam() {
     });
   }, [courseId, questionCount]);
 
+  const submittingRef = useRef(false);
+  const handleSubmitRef = useRef(null);
+
+  useEffect(() => {
+    handleSubmitRef.current = handleSubmit;
+  });
+
   useEffect(() => {
     if (!loading && !finished) {
       startTimeRef.current = Date.now();
@@ -46,7 +56,7 @@ export default function MockExam() {
         setTimeLeft((prev) => {
           if (prev <= 1) {
             clearInterval(timerRef.current);
-            handleSubmit();
+            handleSubmitRef.current?.();
             return 0;
           }
           return prev - 1;
@@ -68,9 +78,18 @@ export default function MockExam() {
   };
 
   const handleSubmit = useCallback(async () => {
-    if (finished) return;
-    setFinished(true);
+    if (submittingRef.current || finished) return;
+    submittingRef.current = true;
+    setSubmitting(true);
+    setShowConfirm(false);
     clearInterval(timerRef.current);
+
+    if (!user?.id || !profile?.id) {
+      toast({ variant: "destructive", title: "Unable to submit", description: "Your profile is still loading. Please try again." });
+      submittingRef.current = false;
+      setSubmitting(false);
+      return;
+    }
 
     const timeSpent = Math.round((Date.now() - startTimeRef.current) / 1000);
     let correct = 0;
@@ -104,11 +123,15 @@ export default function MockExam() {
         total_questions_answered: (profile.total_questions_answered || 0) + Object.keys(answers).length,
         total_correct: (profile.total_correct || 0) + correct,
       });
+      setFinished(true);
       navigate(`/mock-exam-result/${created.id}`);
     } catch (err) {
       console.error(err);
+      toast({ variant: "destructive", title: "Submission failed", description: "Please try submitting again." });
+      submittingRef.current = false;
+      setSubmitting(false);
     }
-  }, [finished, answers, questions, user, courseId, course, profile, navigate, timeLimitSeconds]);
+  }, [finished, answers, questions, user, courseId, course, profile, navigate, timeLimitSeconds, toast]);
 
   if (loading) {
     return (
@@ -184,6 +207,7 @@ export default function MockExam() {
           variant="destructive"
           size="sm"
           className="rounded-full gap-1"
+          disabled={submitting}
           onClick={() => setShowConfirm(true)}
         >
           <Flag className="w-3 h-3" /> Submit Exam
@@ -235,7 +259,10 @@ export default function MockExam() {
           </p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowConfirm(false)}>Continue Exam</Button>
-            <Button variant="destructive" onClick={handleSubmit}>Submit</Button>
+            <Button variant="destructive" onClick={handleSubmit} disabled={submitting}>
+              {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
+              Submit
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
