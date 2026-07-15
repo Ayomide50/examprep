@@ -29,6 +29,8 @@ export default function Profile() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [clearStatsOpen, setClearStatsOpen] = useState(false);
+  const [clearingStats, setClearingStats] = useState(false);
 
   const displayName = profile?.full_name || user?.full_name || "Student";
   const profileImage = profile?.profile_image;
@@ -70,6 +72,40 @@ export default function Profile() {
     } finally {
       setUploadingImage(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const handleRemoveImage = async () => {
+    try {
+      await base44.entities.StudentProfile.update(profile.id, { profile_image: "" });
+      await refresh();
+      toast({ title: "Profile image removed" });
+    } catch (err) {
+      toast({ title: "Failed to remove image", variant: "destructive" });
+    }
+  };
+
+  const handleClearStats = async () => {
+    setClearingStats(true);
+    try {
+      await Promise.all([
+        base44.entities.PracticeAttempt.deleteMany({ user_id: user.id }),
+        base44.entities.MockExamResult.deleteMany({ user_id: user.id }),
+        base44.entities.PracticeSession.deleteMany({ user_id: user.id }),
+      ]);
+      await base44.entities.StudentProfile.update(profile.id, {
+        total_questions_answered: 0,
+        total_correct: 0,
+        total_practice_sessions: 0,
+        total_mock_exams: 0,
+      });
+      await refresh();
+      setClearStatsOpen(false);
+      toast({ title: "Performance data cleared" });
+    } catch (err) {
+      toast({ title: "Failed to clear performance data", variant: "destructive" });
+    } finally {
+      setClearingStats(false);
     }
   };
 
@@ -124,6 +160,15 @@ export default function Profile() {
                 <Camera className="w-3.5 h-3.5" />
               )}
             </button>
+            {profileImage && (
+              <button
+                onClick={handleRemoveImage}
+                className="absolute top-0 right-0 w-7 h-7 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center shadow-md hover:bg-destructive/90 transition-colors"
+                title="Remove profile image"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
             <input
               ref={fileInputRef}
               type="file"
@@ -215,7 +260,40 @@ export default function Profile() {
 
       {/* Stats */}
       <div className="bg-card border border-border/60 rounded-xl p-6">
-        <h3 className="font-heading font-semibold mb-4">Performance Summary</h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-heading font-semibold">Performance Summary</h3>
+          <AlertDialog open={clearStatsOpen} onOpenChange={setClearStatsOpen}>
+            <AlertDialogTrigger asChild>
+              <button className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-destructive transition-colors">
+                <Trash2 className="w-3.5 h-3.5" /> Clear
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Clear all performance data?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently delete all your practice attempts, mock exam results, and reset your stats to zero. This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={clearingStats}>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleClearStats}
+                  disabled={clearingStats}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  {clearingStats ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin mr-1" /> Clearing...
+                    </>
+                  ) : (
+                    "Yes, Clear All"
+                  )}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
         <div className="grid grid-cols-2 gap-4">
           <div className="text-center p-4 bg-muted/50 rounded-lg">
             <p className="font-display text-2xl font-bold">{profile?.total_questions_answered || 0}</p>
