@@ -8,6 +8,7 @@ import UserNotRegisteredError from "@/components/UserNotRegisteredError";
 import ScrollToTop from "./components/ScrollToTop";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import ThemeProvider from "@/components/ThemeProvider";
+import AdminRoute from "@/components/AdminRoute";
 
 // Auth pages
 import Login from "@/pages/Login";
@@ -41,6 +42,7 @@ import AdminStudents from "@/pages/admin/AdminStudents";
 import AdminCourses from "@/pages/admin/AdminCourses";
 import AdminQuestions from "@/pages/admin/AdminQuestions";
 import AdminCodes from "@/pages/admin/AdminCodes";
+import AdminAdmins from "@/pages/admin/AdminAdmins";
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError } = useAuth();
@@ -81,12 +83,15 @@ const AuthenticatedApp = () => {
         </Route>
 
         {/* Admin routes */}
-        <Route element={<AdminLayout />}>
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/students" element={<AdminStudents />} />
-          <Route path="/admin/courses" element={<AdminCourses />} />
-          <Route path="/admin/questions" element={<AdminQuestions />} />
-          <Route path="/admin/codes" element={<AdminCodes />} />
+        <Route element={<AdminRoute />}>
+          <Route element={<AdminLayout />}>
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/students" element={<AdminStudents />} />
+            <Route path="/admin/courses" element={<AdminCourses />} />
+            <Route path="/admin/questions" element={<AdminQuestions />} />
+            <Route path="/admin/codes" element={<AdminCodes />} />
+            <Route path="/admin/admins" element={<AdminAdmins />} />
+          </Route>
         </Route>
       </Route>
 
