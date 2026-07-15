@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
 import { FREE_TRIAL_LIMIT, getWhatsAppLink } from "@/lib/constants";
-import { BookOpen, Play, FileText, Lock, ArrowLeft, MessageCircle } from "lucide-react";
+import { BookOpen, Play, Lock, ArrowLeft, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function CourseDetail() {
@@ -93,50 +93,25 @@ export default function CourseDetail() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <button
-            onClick={() => {
-              if (canPractice) navigate(`/practice/${courseId}`);
-            }}
-            disabled={!canPractice}
-            className={`flex items-center gap-4 p-5 rounded-xl border transition-all text-left ${
-              canPractice
-                ? "border-border/60 hover:border-primary/20 hover:shadow-md cursor-pointer"
-                : "border-border/30 opacity-50 cursor-not-allowed"
-            }`}
-          >
-            <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
-              <Play className="w-5 h-5 text-blue-600" />
-            </div>
-            <div>
-              <h3 className="font-heading font-semibold">Practice Mode</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">Answer questions with instant feedback</p>
-            </div>
-          </button>
-
-          <button
-            onClick={() => {
-              if (isActivated) navigate(`/mock-exam/${courseId}`);
-            }}
-            disabled={!isActivated}
-            className={`flex items-center gap-4 p-5 rounded-xl border transition-all text-left ${
-              isActivated
-                ? "border-border/60 hover:border-primary/20 hover:shadow-md cursor-pointer"
-                : "border-border/30 opacity-50 cursor-not-allowed"
-            }`}
-          >
-            <div className="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center shrink-0">
-              <FileText className="w-5 h-5 text-purple-600" />
-            </div>
-            <div>
-              <h3 className="font-heading font-semibold">Mock Exam</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {isActivated ? "Timed CBT simulation" : "Premium feature — activate to access"}
-              </p>
-            </div>
-            {!isActivated && <Lock className="w-4 h-4 text-muted-foreground ml-auto" />}
-          </button>
-        </div>
+        <button
+          onClick={() => {
+            if (canPractice) navigate(`/practice/${courseId}`);
+          }}
+          disabled={!canPractice}
+          className={`w-full flex items-center gap-4 p-5 rounded-xl border transition-all text-left ${
+            canPractice
+              ? "border-border/60 hover:border-primary/20 hover:shadow-md cursor-pointer"
+              : "border-border/30 opacity-50 cursor-not-allowed"
+          }`}
+        >
+          <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
+            <Play className="w-5 h-5 text-blue-600" />
+          </div>
+          <div>
+            <h3 className="font-heading font-semibold">Start Practice</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">Select number of questions and start practicing</p>
+          </div>
+        </button>
       </div>
     </div>
   );

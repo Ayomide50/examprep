@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
 import { FREE_TRIAL_LIMIT, getWhatsAppLink } from "@/lib/constants";
-import { ArrowLeft, ArrowRight, CheckCircle, XCircle, RotateCcw, MessageCircle, Lock, BookOpen, Bookmark, Trophy, Home } from "lucide-react";
+import { ArrowLeft, ArrowRight, RotateCcw, MessageCircle, Lock, BookOpen, Bookmark, Trophy, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
@@ -21,7 +21,6 @@ export default function PracticeMode() {
   const [questionCount, setQuestionCount] = useState("unlimited");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
-  const [showResult, setShowResult] = useState(false);
   const [loading, setLoading] = useState(true);
   const [sessionComplete, setSessionComplete] = useState(false);
   const [sessionAnswered, setSessionAnswered] = useState(0);
@@ -70,7 +69,6 @@ export default function PracticeMode() {
   const resetSession = () => {
     setCurrentIndex(0);
     setSelectedAnswer(null);
-    setShowResult(false);
     setSessionAnswered(0);
     setSessionCorrect(0);
     setSessionComplete(false);
@@ -88,9 +86,8 @@ export default function PracticeMode() {
     resetSession();
   };
 
-  const handleCheckAnswer = async () => {
-    if (!selectedAnswer || showResult) return;
-    setShowResult(true);
+  const saveCurrentAnswer = async () => {
+    if (!selectedAnswer) return { answered: sessionAnswered, correct: sessionCorrect };
 
     const question = questions[currentIndex];
     const isCorrect = selectedAnswer === question.correct_answer;
@@ -128,19 +125,15 @@ export default function PracticeMode() {
     } catch (err) {
       console.error(err);
     }
+
+    return { answered: newAnswered, correct: newCorrect };
   };
 
-  const handleNext = () => {
-    if (currentIndex < questions.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-      setSelectedAnswer(null);
-      setShowResult(false);
-    }
-  };
-
-  const handleFinish = async () => {
-    const wrongCount = sessionAnswered - sessionCorrect;
-    const percentage = sessionAnswered > 0 ? Math.round((sessionCorrect / sessionAnswered) * 100) : 0;
+  const finishSession = async (answered, correct) => {
+    const finalAnswered = answered ?? sessionAnswered;
+    const finalCorrect = correct ?? sessionCorrect;
+    const wrongCount = finalAnswered - finalCorrect;
+    const percentage = finalAnswered > 0 ? Math.round((finalCorrect / finalAnswered) * 100) : 0;
 
     try {
       await base44.entities.PracticeSession.create({
@@ -148,8 +141,8 @@ export default function PracticeMode() {
         course_id: courseId,
         course_code: course?.code || "",
         topic_id: selectedTopic !== "all" ? selectedTopic : "",
-        total_questions: sessionAnswered,
-        correct_answers: sessionCorrect,
+        total_questions: finalAnswered,
+        correct_answers: finalCorrect,
         wrong_answers: wrongCount,
         score_percentage: percentage,
         mode: "practice",
@@ -164,6 +157,25 @@ export default function PracticeMode() {
     }
 
     setSessionComplete(true);
+  };
+
+  const handleNext = async () => {
+    const { answered, correct } = await saveCurrentAnswer();
+    if (currentIndex < questions.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+      setSelectedAnswer(null);
+    } else {
+      await finishSession(answered, correct);
+    }
+  };
+
+  const handleStop = async () => {
+    if (sessionAnswered === 0 && !selectedAnswer) {
+      navigate("/dashboard");
+      return;
+    }
+    const { answered, correct } = await saveCurrentAnswer();
+    await finishSession(answered, correct);
   };
 
   const handlePracticeAgain = () => {
@@ -300,8 +312,8 @@ export default function PracticeMode() {
     <div className="max-w-3xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <button onClick={() => navigate("/dashboard")} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="w-4 h-4" /> {course?.code}
+        <button onClick={handleStop} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <ArrowLeft className="w-4 h-4" /> Stop &amp; See Results
         </button>
         <div className="flex items-center gap-3">
           <span className="text-sm text-muted-foreground">
@@ -314,7 +326,7 @@ export default function PracticeMode() {
         </div>
       </div>
 
-      {/* Topic filter + progress */}
+      {/* Topic filter + count + progress */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         <Select value={selectedTopic} onValueChange={handleTopicChange}>
           <SelectTrigger className="w-full sm:w-48 rounded-full">
@@ -372,77 +384,40 @@ export default function PracticeMode() {
 
         <div className="space-y-3">
           {options.map((opt) => {
-            let style = "border-border/60 hover:border-primary/30 hover:bg-muted/50";
-            if (showResult) {
-              if (opt.key === question.correct_answer) {
-                style = "border-green-500 bg-green-50";
-              } else if (opt.key === selectedAnswer && opt.key !== question.correct_answer) {
-                style = "border-red-500 bg-red-50";
-              } else {
-                style = "border-border/30 opacity-50";
-              }
-            } else if (selectedAnswer === opt.key) {
-              style = "border-primary bg-primary/5";
-            }
-
+            const isSelected = selectedAnswer === opt.key;
             return (
               <button
                 key={opt.key}
-                onClick={() => !showResult && setSelectedAnswer(opt.key)}
-                disabled={showResult}
-                className={`w-full text-left p-4 rounded-xl border transition-all flex items-start gap-3 ${style}`}
+                onClick={() => setSelectedAnswer(opt.key)}
+                className={`w-full text-left p-4 rounded-xl border transition-all flex items-start gap-3 ${
+                  isSelected
+                    ? "border-primary bg-primary/5"
+                    : "border-border/60 hover:border-primary/30 hover:bg-muted/50"
+                }`}
               >
                 <span className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-semibold shrink-0 ${
-                  showResult && opt.key === question.correct_answer
-                    ? "bg-green-500 text-white"
-                    : showResult && opt.key === selectedAnswer
-                    ? "bg-red-500 text-white"
-                    : selectedAnswer === opt.key
+                  isSelected
                     ? "bg-primary text-primary-foreground"
                     : "bg-muted text-muted-foreground"
                 }`}>
                   {opt.key}
                 </span>
                 <span className="text-sm leading-relaxed pt-1">{opt.text}</span>
-                {showResult && opt.key === question.correct_answer && (
-                  <CheckCircle className="w-5 h-5 text-green-500 ml-auto shrink-0 mt-1" />
-                )}
-                {showResult && opt.key === selectedAnswer && opt.key !== question.correct_answer && (
-                  <XCircle className="w-5 h-5 text-red-500 ml-auto shrink-0 mt-1" />
-                )}
               </button>
             );
           })}
         </div>
 
-        {/* Explanation */}
-        {showResult && question.explanation && (
-          <div className="mt-6 p-4 rounded-lg bg-blue-50 border border-blue-100">
-            <p className="text-sm font-medium text-blue-900 mb-1">Explanation</p>
-            <p className="text-sm text-blue-800 leading-relaxed">{question.explanation}</p>
-          </div>
-        )}
-
         {/* Actions */}
         <div className="flex gap-3 mt-6">
-          {!showResult ? (
-            <Button
-              className="rounded-full gap-2"
-              disabled={!selectedAnswer}
-              onClick={handleCheckAnswer}
-            >
-              <CheckCircle className="w-4 h-4" /> Check Answer
+          {isLastQuestion ? (
+            <Button className="rounded-full gap-2" onClick={handleNext}>
+              Finish <Trophy className="w-4 h-4" />
             </Button>
           ) : (
-            isLastQuestion ? (
-              <Button className="rounded-full gap-2" onClick={handleFinish}>
-                Finish <Trophy className="w-4 h-4" />
-              </Button>
-            ) : (
-              <Button className="rounded-full gap-2" onClick={handleNext}>
-                Next <ArrowRight className="w-4 h-4" />
-              </Button>
-            )
+            <Button className="rounded-full gap-2" onClick={handleNext}>
+              Next <ArrowRight className="w-4 h-4" />
+            </Button>
           )}
         </div>
       </div>
