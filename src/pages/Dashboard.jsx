@@ -5,6 +5,7 @@ import { useStudentProfile } from "@/hooks/useStudentProfile";
 import { BookOpen, Target, Trophy, Clock, ArrowRight, AlertCircle, CheckCircle, Calculator, Briefcase, TrendingUp, BarChart3, Users, Megaphone, Settings, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import DashboardCharts from "@/components/dashboard/DashboardCharts";
 import { useToast } from "@/components/ui/use-toast";
 import {
   AlertDialog,
@@ -173,6 +174,9 @@ export default function Dashboard() {
           </div>
         ))}
       </div>
+
+      {/* Performance Charts */}
+      <DashboardCharts userId={user?.id} />
 
       {/* Courses Grid */}
       <div>

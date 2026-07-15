@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { HelpCircle, Plus, Search, Pencil, Trash2, Upload, ChevronDown } from "lucide-react";
+import { HelpCircle, Plus, Search, Pencil, Trash2, Upload, ChevronDown, FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -134,6 +134,19 @@ export default function AdminQuestions() {
     setShowUpload(false);
   };
 
+  const handleDownloadTemplate = () => {
+    const headers = ["question_text", "course_code", "option_a", "option_b", "option_c", "option_d", "correct_answer", "explanation", "difficulty"];
+    const sampleRow = ["What is 2 + 2?", "ACC 111", "3", "4", "5", "6", "B", "2 + 2 equals 4", "easy"];
+    const csv = [headers.join(","), sampleRow.map((v) => `"${v}"`).join(",")].join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "questions_template.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const filtered = questions.filter((q) => {
     const matchSearch = q.question_text.toLowerCase().includes(search.toLowerCase());
     const matchCourse = filterCourse === "all" || q.course_id === filterCourse;
@@ -156,6 +169,9 @@ export default function AdminQuestions() {
           <p className="text-muted-foreground mt-1">{questions.length} total questions</p>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" className="rounded-full gap-2" onClick={handleDownloadTemplate}>
+            <FileDown className="w-4 h-4" /> <span className="hidden sm:inline">Template</span>
+          </Button>
           <Button variant="outline" className="rounded-full gap-2" onClick={() => setShowUpload(true)}>
             <Upload className="w-4 h-4" /> Import
           </Button>
@@ -288,7 +304,7 @@ export default function AdminQuestions() {
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Upload a CSV or Excel file with columns: question_text, course_code, option_a, option_b, option_c, option_d, correct_answer, explanation, difficulty
+              Download the template first, fill it with your questions, then upload it. Columns: question_text, course_code, option_a, option_b, option_c, option_d, correct_answer, explanation, difficulty
             </p>
             <Input type="file" accept=".csv,.xlsx,.xls" onChange={handleFileUpload} disabled={uploading} />
             {uploading && (

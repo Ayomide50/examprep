@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { BookOpen, LayoutDashboard, Users, GraduationCap, HelpCircle, KeyRound, LogOut, Menu, X, BarChart3 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const navItems = [
   { path: "/admin", icon: LayoutDashboard, label: "Overview" },
@@ -26,9 +27,12 @@ export default function AdminLayout() {
           <BookOpen className="w-5 h-5 text-primary" />
           <span className="font-display font-bold">Admin Panel</span>
         </Link>
-        <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2">
-          {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
+        <div className="flex items-center gap-1">
+          <ThemeToggle />
+          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2">
+            {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </div>
       </div>
 
       <aside className={`fixed inset-y-0 left-0 z-40 w-64 bg-card border-r border-border transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
@@ -60,6 +64,10 @@ export default function AdminLayout() {
           </nav>
 
           <div className="p-4 border-t border-border">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm text-muted-foreground">Appearance</span>
+              <ThemeToggle />
+            </div>
             <Link
               to="/dashboard"
               className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted mb-1"
