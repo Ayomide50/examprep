@@ -7,9 +7,6 @@ Deno.serve(async (req) => {
     // Get all student profiles
     const students = await base44.asServiceRole.entities.StudentProfile.list("-created_date", 500);
 
-    // Get Gmail access token
-    const { accessToken } = await base44.asServiceRole.connectors.getConnection('gmail');
-
     const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     let emailsSent = 0;
     let skipped = 0;
@@ -75,41 +72,15 @@ ${recentExams.length > 0 ? `<h3 style="color:#4f46e5">Recent Mock Exams</h3><ul>
 <p style="margin-top:30px;color:#666">Keep up the great work! Log in to continue practicing.</p>
 </div>`;
 
-        // Construct RFC 2822 email
-        const rawEmail = [
-          `To: ${student.email}`,
-          `Subject: Your Weekly Progress Summary - ExamPrep CBT`,
-          `Content-Type: text/html; charset=UTF-8`,
-          ``,
-          htmlBody
-        ].join("\r\n");
-
-        // Base64 encode (URL-safe, UTF-8 safe)
-        const bytes = new TextEncoder().encode(rawEmail);
-        let binary = '';
-        for (const b of bytes) {
-          binary += String.fromCharCode(b);
-        }
-        const encodedEmail = btoa(binary)
-          .replace(/\+/g, '-')
-          .replace(/\//g, '_')
-          .replace(/=+$/, '');
-
-        // Send via Gmail API
-        const response = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ raw: encodedEmail })
+        // Send email via built-in email integration
+        await base44.asServiceRole.integrations.Core.SendEmail({
+          to: student.email,
+          subject: "Your Weekly Progress Summary - ExamPrep CBT",
+          body: htmlBody,
+          from_name: "ExamPrep CBT",
         });
 
-        if (response.ok) {
-          emailsSent++;
-        } else {
-          errors++;
-        }
+        emailsSent++;
       } catch (err) {
         errors++;
       }
