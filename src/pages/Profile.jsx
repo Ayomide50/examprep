@@ -1,10 +1,92 @@
-import React from "react";
+import React, { useState, useRef } from "react";
+import { base44 } from "@/api/base44Client";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
-import { User, Mail, Shield, Calendar, CheckCircle, XCircle } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { User, Mail, Shield, Calendar, CheckCircle, XCircle, Camera, Pencil, Trash2, Loader2, Save, X } from "lucide-react";
 import moment from "moment";
 
 export default function Profile() {
-  const { profile, user, loading } = useStudentProfile();
+  const { profile, user, loading, refresh } = useStudentProfile();
+  const { toast } = useToast();
+  const fileInputRef = useRef(null);
+
+  const [editingName, setEditingName] = useState(false);
+  const [nameValue, setNameValue] = useState("");
+  const [savingName, setSavingName] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const displayName = profile?.full_name || user?.full_name || "Student";
+  const profileImage = profile?.profile_image;
+
+  const handleSaveName = async () => {
+    if (!nameValue.trim()) {
+      toast({ title: "Name cannot be empty", variant: "destructive" });
+      return;
+    }
+    setSavingName(true);
+    try {
+      await base44.entities.StudentProfile.update(profile.id, { full_name: nameValue.trim() });
+      await refresh();
+      setEditingName(false);
+      toast({ title: "Name updated" });
+    } catch (err) {
+      toast({ title: "Failed to update name", variant: "destructive" });
+    } finally {
+      setSavingName(false);
+    }
+  };
+
+  const startEditing = () => {
+    setNameValue(displayName);
+    setEditingName(true);
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingImage(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      await base44.entities.StudentProfile.update(profile.id, { profile_image: file_url });
+      await refresh();
+      toast({ title: "Profile image updated" });
+    } catch (err) {
+      toast({ title: "Failed to upload image", variant: "destructive" });
+    } finally {
+      setUploadingImage(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeleting(true);
+    try {
+      if (profile) {
+        await base44.entities.StudentProfile.delete(profile.id);
+      }
+      await base44.entities.User.delete(user.id);
+      window.location.href = "/landing";
+    } catch (err) {
+      toast({ title: "Failed to delete account. Please contact support.", variant: "destructive" });
+      setDeleting(false);
+      setDeleteOpen(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -18,17 +100,70 @@ export default function Profile() {
     <div className="max-w-2xl mx-auto space-y-8">
       <h1 className="font-display text-2xl md:text-3xl font-bold">Profile</h1>
 
+      {/* Profile card with image + name editing */}
       <div className="bg-card border border-border/60 rounded-xl p-6 space-y-5">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-full bg-primary/5 flex items-center justify-center">
-            <User className="w-7 h-7 text-primary" />
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
+          {/* Profile image */}
+          <div className="relative shrink-0">
+            <div className="w-20 h-20 rounded-full overflow-hidden bg-primary/5 flex items-center justify-center border-2 border-border">
+              {profileImage ? (
+                <img src={profileImage} alt={displayName} className="w-full h-full object-cover" />
+              ) : (
+                <User className="w-9 h-9 text-primary" />
+              )}
+            </div>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploadingImage}
+              className="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md hover:bg-primary/90 transition-colors disabled:opacity-50"
+              title="Change profile image"
+            >
+              {uploadingImage ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Camera className="w-3.5 h-3.5" />
+              )}
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="hidden"
+            />
           </div>
-          <div>
-            <h2 className="font-heading font-semibold text-lg">{user?.full_name || "Student"}</h2>
-            <p className="text-sm text-muted-foreground">{user?.email}</p>
+
+          {/* Name + email */}
+          <div className="flex-1 text-center sm:text-left">
+            {editingName ? (
+              <div className="flex items-center gap-2 justify-center sm:justify-start">
+                <Input
+                  value={nameValue}
+                  onChange={(e) => setNameValue(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSaveName()}
+                  className="max-w-xs"
+                  autoFocus
+                />
+                <Button size="icon" onClick={handleSaveName} disabled={savingName} className="shrink-0">
+                  {savingName ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                </Button>
+                <Button size="icon" variant="outline" onClick={() => setEditingName(false)} disabled={savingName} className="shrink-0">
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 justify-center sm:justify-start">
+                <h2 className="font-heading font-semibold text-lg">{displayName}</h2>
+                <button onClick={startEditing} className="text-muted-foreground hover:text-primary transition-colors" title="Edit name">
+                  <Pencil className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
+            <p className="text-sm text-muted-foreground mt-0.5">{user?.email}</p>
           </div>
         </div>
 
+        {/* Account info */}
         <div className="border-t border-border pt-5 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm">
@@ -103,6 +238,45 @@ export default function Profile() {
             <p className="text-xs text-muted-foreground">Practice Sessions</p>
           </div>
         </div>
+      </div>
+
+      {/* Danger zone */}
+      <div className="bg-card border border-destructive/30 rounded-xl p-6">
+        <h3 className="font-heading font-semibold text-destructive mb-2">Delete Account</h3>
+        <p className="text-sm text-muted-foreground mb-4">
+          Permanently delete your account and all associated data. This action cannot be undone.
+        </p>
+        <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+          <AlertDialogTrigger asChild>
+            <Button variant="outline" className="rounded-full gap-2 text-destructive hover:text-destructive border-destructive/30 hover:bg-destructive/5">
+              <Trash2 className="w-4 h-4" /> Delete Account
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete your account?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will permanently delete your account, profile, and all practice/exam history. This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteAccount}
+                disabled={deleting}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {deleting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin mr-1" /> Deleting...
+                  </>
+                ) : (
+                  "Yes, Delete My Account"
+                )}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );

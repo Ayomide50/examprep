@@ -12,6 +12,10 @@
     "full_name": {
       "type": "string"
     },
+    "profile_image": {
+      "type": "string",
+      "description": "URL of uploaded profile image"
+    },
     "is_activated": {
       "type": "boolean",
       "default": false

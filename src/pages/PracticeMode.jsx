@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
 import { FREE_TRIAL_LIMIT, getWhatsAppLink } from "@/lib/constants";
-import { ArrowLeft, ArrowRight, RotateCcw, MessageCircle, Lock, BookOpen, Bookmark, Trophy, Home, Eye, CheckCircle, XCircle } from "lucide-react";
+import { ArrowLeft, ArrowRight, RotateCcw, MessageCircle, Lock, BookOpen, Bookmark, Trophy, Home, Eye, CheckCircle, XCircle, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
@@ -443,17 +443,20 @@ export default function PracticeMode() {
 
         {/* Actions */}
         <div className="flex gap-3 mt-6">
+          <Button variant="outline" className="rounded-full gap-2 text-destructive hover:text-destructive" onClick={handleStop}>
+            <Square className="w-4 h-4 fill-current" /> Stop
+          </Button>
           {!showAnswer && (
             <Button variant="outline" className="rounded-full gap-2" onClick={() => setShowAnswer(true)}>
               <Eye className="w-4 h-4" /> Show Answer
             </Button>
           )}
           {isLastQuestion ? (
-            <Button className="rounded-full gap-2" onClick={handleNext}>
+            <Button className="rounded-full gap-2 ml-auto" onClick={handleNext}>
               Finish <Trophy className="w-4 h-4" />
             </Button>
           ) : (
-            <Button className="rounded-full gap-2" onClick={handleNext}>
+            <Button className="rounded-full gap-2 ml-auto" onClick={handleNext}>
               Next <ArrowRight className="w-4 h-4" />
             </Button>
           )}
