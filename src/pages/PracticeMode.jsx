@@ -18,6 +18,7 @@ export default function PracticeMode() {
   const [allQuestions, setAllQuestions] = useState([]);
   const [questions, setQuestions] = useState([]);
   const [selectedTopic, setSelectedTopic] = useState("all");
+  const [questionCount, setQuestionCount] = useState("unlimited");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [showResult, setShowResult] = useState(false);
@@ -56,10 +57,14 @@ export default function PracticeMode() {
     }
   }, [profileLoading, profile, courseId]);
 
-  const shuffleAndFilter = (topicId, pool) => {
+  const shuffleAndFilter = (topicId, count, pool) => {
     const source = pool || allQuestions;
     const filtered = topicId === "all" ? source : source.filter((q) => q.topic_id === topicId);
-    return [...filtered].sort(() => Math.random() - 0.5);
+    const shuffled = [...filtered].sort(() => Math.random() - 0.5);
+    if (count && count !== "unlimited") {
+      return shuffled.slice(0, parseInt(count));
+    }
+    return shuffled;
   };
 
   const resetSession = () => {
@@ -73,7 +78,13 @@ export default function PracticeMode() {
 
   const handleTopicChange = (value) => {
     setSelectedTopic(value);
-    setQuestions(shuffleAndFilter(value));
+    setQuestions(shuffleAndFilter(value, questionCount));
+    resetSession();
+  };
+
+  const handleCountChange = (value) => {
+    setQuestionCount(value);
+    setQuestions(shuffleAndFilter(selectedTopic, value));
     resetSession();
   };
 
@@ -156,7 +167,7 @@ export default function PracticeMode() {
   };
 
   const handlePracticeAgain = () => {
-    setQuestions(shuffleAndFilter(selectedTopic));
+    setQuestions(shuffleAndFilter(selectedTopic, questionCount));
     resetSession();
   };
 
@@ -306,7 +317,7 @@ export default function PracticeMode() {
       {/* Topic filter + progress */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         <Select value={selectedTopic} onValueChange={handleTopicChange}>
-          <SelectTrigger className="w-full sm:w-56 rounded-full">
+          <SelectTrigger className="w-full sm:w-48 rounded-full">
             <SelectValue placeholder="All Topics" />
           </SelectTrigger>
           <SelectContent>
@@ -314,6 +325,17 @@ export default function PracticeMode() {
             {topics.map((t) => (
               <SelectItem key={t.id} value={t.id}>{t.title}</SelectItem>
             ))}
+          </SelectContent>
+        </Select>
+        <Select value={questionCount} onValueChange={handleCountChange}>
+          <SelectTrigger className="w-full sm:w-40 rounded-full">
+            <SelectValue placeholder="Questions" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="20">20 Questions</SelectItem>
+            <SelectItem value="30">30 Questions</SelectItem>
+            <SelectItem value="50">50 Questions</SelectItem>
+            <SelectItem value="unlimited">All Questions</SelectItem>
           </SelectContent>
         </Select>
         <div className="flex-1 flex items-center gap-3">
