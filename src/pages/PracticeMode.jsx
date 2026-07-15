@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
 import { FREE_TRIAL_LIMIT, getWhatsAppLink } from "@/lib/constants";
-import { ArrowLeft, ArrowRight, RotateCcw, MessageCircle, Lock, BookOpen, Bookmark, Trophy, Home } from "lucide-react";
+import { ArrowLeft, ArrowRight, RotateCcw, MessageCircle, Lock, BookOpen, Bookmark, Trophy, Home, Eye, CheckCircle, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
@@ -21,6 +21,7 @@ export default function PracticeMode() {
   const [questionCount, setQuestionCount] = useState("unlimited");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [showAnswer, setShowAnswer] = useState(false);
   const [loading, setLoading] = useState(true);
   const [sessionComplete, setSessionComplete] = useState(false);
   const [sessionAnswered, setSessionAnswered] = useState(0);
@@ -69,6 +70,7 @@ export default function PracticeMode() {
   const resetSession = () => {
     setCurrentIndex(0);
     setSelectedAnswer(null);
+    setShowAnswer(false);
     setSessionAnswered(0);
     setSessionCorrect(0);
     setSessionComplete(false);
@@ -164,6 +166,7 @@ export default function PracticeMode() {
     if (currentIndex < questions.length - 1) {
       setCurrentIndex(currentIndex + 1);
       setSelectedAnswer(null);
+      setShowAnswer(false);
     } else {
       await finishSession(answered, correct);
     }
@@ -385,31 +388,66 @@ export default function PracticeMode() {
         <div className="space-y-3">
           {options.map((opt) => {
             const isSelected = selectedAnswer === opt.key;
+            const isCorrect = opt.key === question.correct_answer;
+
+            let style = "border-border/60 hover:border-primary/30 hover:bg-muted/50";
+            if (showAnswer) {
+              if (isCorrect) {
+                style = "border-green-500 bg-green-50";
+              } else if (isSelected) {
+                style = "border-red-500 bg-red-50";
+              } else {
+                style = "border-border/30 opacity-50";
+              }
+            } else if (isSelected) {
+              style = "border-primary bg-primary/5";
+            }
+
             return (
               <button
                 key={opt.key}
-                onClick={() => setSelectedAnswer(opt.key)}
-                className={`w-full text-left p-4 rounded-xl border transition-all flex items-start gap-3 ${
-                  isSelected
-                    ? "border-primary bg-primary/5"
-                    : "border-border/60 hover:border-primary/30 hover:bg-muted/50"
-                }`}
+                onClick={() => !showAnswer && setSelectedAnswer(opt.key)}
+                disabled={showAnswer}
+                className={`w-full text-left p-4 rounded-xl border transition-all flex items-start gap-3 ${style}`}
               >
                 <span className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-semibold shrink-0 ${
-                  isSelected
+                  showAnswer && isCorrect
+                    ? "bg-green-500 text-white"
+                    : showAnswer && isSelected
+                    ? "bg-red-500 text-white"
+                    : isSelected
                     ? "bg-primary text-primary-foreground"
                     : "bg-muted text-muted-foreground"
                 }`}>
                   {opt.key}
                 </span>
                 <span className="text-sm leading-relaxed pt-1">{opt.text}</span>
+                {showAnswer && isCorrect && (
+                  <CheckCircle className="w-5 h-5 text-green-500 ml-auto shrink-0 mt-1" />
+                )}
+                {showAnswer && isSelected && !isCorrect && (
+                  <XCircle className="w-5 h-5 text-red-500 ml-auto shrink-0 mt-1" />
+                )}
               </button>
             );
           })}
         </div>
 
+        {/* Explanation (shown after "Show Answer") */}
+        {showAnswer && question.explanation && (
+          <div className="mt-6 p-4 rounded-lg bg-blue-50 border border-blue-100">
+            <p className="text-sm font-medium text-blue-900 mb-1">Explanation</p>
+            <p className="text-sm text-blue-800 leading-relaxed">{question.explanation}</p>
+          </div>
+        )}
+
         {/* Actions */}
         <div className="flex gap-3 mt-6">
+          {!showAnswer && (
+            <Button variant="outline" className="rounded-full gap-2" onClick={() => setShowAnswer(true)}>
+              <Eye className="w-4 h-4" /> Show Answer
+            </Button>
+          )}
           {isLastQuestion ? (
             <Button className="rounded-full gap-2" onClick={handleNext}>
               Finish <Trophy className="w-4 h-4" />
