@@ -1,4 +1,4 @@
-export const ADMIN_WHATSAPP = "2348000000000"; // Replace with actual admin WhatsApp number
+export const ADMIN_WHATSAPP = "2347038662598"; // Admin WhatsApp number
 export const FREE_TRIAL_LIMIT = 3; // Questions per course for free trial
 export const MOCK_EXAM_DURATION = 30 * 60; // 30 minutes in seconds
 export const MOCK_EXAM_QUESTIONS = 20; // Questions per mock exam
