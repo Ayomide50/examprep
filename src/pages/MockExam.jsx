@@ -1,26 +1,30 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
-import { MOCK_EXAM_DURATION, MOCK_EXAM_QUESTIONS, PASS_MARK } from "@/lib/constants";
-import { Clock, AlertCircle, ChevronLeft, ChevronRight, Flag } from "lucide-react";
+import { PASS_MARK } from "@/lib/constants";
+import { Clock, ChevronLeft, ChevronRight, Flag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 export default function MockExam() {
   const { courseId } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const questionCount = parseInt(searchParams.get("questions")) || 20;
+  const timeLimitMinutes = parseInt(searchParams.get("time")) || 30;
+  const timeLimitSeconds = timeLimitMinutes * 60;
+
   const { profile, user } = useStudentProfile();
   const [course, setCourse] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState({});
-  const [timeLeft, setTimeLeft] = useState(MOCK_EXAM_DURATION);
-  const [started, setStarted] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(timeLimitSeconds);
   const [finished, setFinished] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(true);
-  const startTimeRef = useRef(null);
+  const startTimeRef = useRef(Date.now());
   const timerRef = useRef(null);
 
   useEffect(() => {
@@ -29,14 +33,15 @@ export default function MockExam() {
       base44.entities.Question.filter({ course_id: courseId, is_active: true }),
     ]).then(([courseData, qData]) => {
       if (courseData.length > 0) setCourse(courseData[0]);
-      const shuffled = [...qData].sort(() => Math.random() - 0.5).slice(0, MOCK_EXAM_QUESTIONS);
+      const shuffled = [...qData].sort(() => Math.random() - 0.5).slice(0, questionCount);
       setQuestions(shuffled);
       setLoading(false);
     });
-  }, [courseId]);
+  }, [courseId, questionCount]);
 
   useEffect(() => {
-    if (started && !finished) {
+    if (!loading && !finished) {
+      startTimeRef.current = Date.now();
       timerRef.current = setInterval(() => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
@@ -49,17 +54,12 @@ export default function MockExam() {
       }, 1000);
       return () => clearInterval(timerRef.current);
     }
-  }, [started, finished]);
+  }, [loading, finished]);
 
   const formatTime = (secs) => {
     const m = Math.floor(secs / 60);
     const s = secs % 60;
     return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
-  };
-
-  const handleStart = () => {
-    setStarted(true);
-    startTimeRef.current = Date.now();
   };
 
   const handleAnswer = (key) => {
@@ -91,7 +91,7 @@ export default function MockExam() {
       wrong_answers: questions.length - correct - Object.keys(answers).filter(k => !answers[k]).length,
       unanswered: questions.length - Object.keys(answers).length,
       score_percentage: score,
-      time_allowed_seconds: MOCK_EXAM_DURATION,
+      time_allowed_seconds: timeLimitSeconds,
       time_spent_seconds: timeSpent,
       answers: answerDetails,
       passed: score >= PASS_MARK,
@@ -108,54 +108,12 @@ export default function MockExam() {
     } catch (err) {
       console.error(err);
     }
-  }, [finished, answers, questions, user, courseId, course, profile, navigate]);
+  }, [finished, answers, questions, user, courseId, course, profile, navigate, timeLimitSeconds]);
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="w-8 h-8 border-4 border-muted border-t-primary rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  if (!started) {
-    return (
-      <div className="max-w-lg mx-auto text-center py-16">
-        <div className="w-16 h-16 rounded-2xl bg-primary/5 flex items-center justify-center mx-auto mb-6">
-          <Clock className="w-8 h-8 text-primary" />
-        </div>
-        <h1 className="font-display text-2xl font-bold mb-2">Mock Exam</h1>
-        <p className="text-muted-foreground mb-1">{course?.code} — {course?.title}</p>
-        <div className="flex flex-wrap justify-center gap-4 text-sm text-muted-foreground my-6">
-          <span>{questions.length} Questions</span>
-          <span>•</span>
-          <span>{formatTime(MOCK_EXAM_DURATION)} Minutes</span>
-          <span>•</span>
-          <span>Pass Mark: {PASS_MARK}%</span>
-        </div>
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6 text-left">
-          <div className="flex items-start gap-2">
-            <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-            <div className="text-sm text-amber-800">
-              <p className="font-medium mb-1">Instructions:</p>
-              <ul className="list-disc pl-4 space-y-1 text-amber-700">
-                <li>Questions are randomized</li>
-                <li>Timer starts when you click Begin</li>
-                <li>You can navigate between questions</li>
-                <li>Unanswered questions will be marked wrong</li>
-                <li>Exam auto-submits when time expires</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-        <div className="flex gap-3 justify-center">
-          <Button variant="outline" className="rounded-full" onClick={() => navigate(`/courses/${courseId}`)}>
-            Cancel
-          </Button>
-          <Button className="rounded-full px-8" onClick={handleStart}>
-            Begin Exam
-          </Button>
-        </div>
       </div>
     );
   }
