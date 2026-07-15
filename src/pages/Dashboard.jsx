@@ -2,10 +2,21 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
-import { BookOpen, Target, Trophy, Clock, ArrowRight, AlertCircle, CheckCircle, Calculator, Briefcase, TrendingUp, BarChart3, Users, Megaphone, Settings } from "lucide-react";
+import { BookOpen, Target, Trophy, Clock, ArrowRight, AlertCircle, CheckCircle, Calculator, Briefcase, TrendingUp, BarChart3, Users, Megaphone, Settings, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import Leaderboard from "@/components/dashboard/Leaderboard";
+import { useToast } from "@/components/ui/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const iconMap = {
   calculator: Calculator,
@@ -18,9 +29,12 @@ const iconMap = {
 };
 
 export default function Dashboard() {
-  const { profile, user, loading } = useStudentProfile();
+  const { profile, user, loading, refresh } = useStudentProfile();
+  const { toast } = useToast();
   const [courses, setCourses] = useState([]);
   const [recentExams, setRecentExams] = useState([]);
+  const [clearing, setClearing] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
     base44.entities.Course.filter({ is_active: true }).then(setCourses);
@@ -31,6 +45,34 @@ export default function Dashboard() {
       base44.entities.MockExamResult.filter({ user_id: user.id }, "-created_date", 5).then(setRecentExams);
     }
   }, [user]);
+
+  const handleClearProgress = async () => {
+    setClearing(true);
+    try {
+      await Promise.all([
+        base44.entities.MockExamResult.deleteMany({ user_id: user.id }),
+        base44.entities.PracticeAttempt.deleteMany({ user_id: user.id }),
+        base44.entities.PracticeSession.deleteMany({ user_id: user.id }),
+      ]);
+
+      await base44.entities.StudentProfile.update(profile.id, {
+        total_questions_answered: 0,
+        total_correct: 0,
+        total_practice_sessions: 0,
+        total_mock_exams: 0,
+      });
+
+      setRecentExams([]);
+      refresh();
+      setDialogOpen(false);
+      toast({ title: "Progress cleared successfully" });
+    } catch (error) {
+      console.error("Failed to clear progress:", error);
+      toast({ title: "Failed to clear progress", variant: "destructive" });
+    } finally {
+      setClearing(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -47,11 +89,45 @@ export default function Dashboard() {
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="font-display text-2xl md:text-3xl font-bold">
-          Welcome back{user?.full_name ? `, ${user.full_name.split(" ")[0]}` : ""}
-        </h1>
-        <p className="text-muted-foreground mt-1">Track your progress and keep practicing</p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="font-display text-2xl md:text-3xl font-bold">
+            Welcome back{user?.full_name ? `, ${user.full_name.split(" ")[0]}` : ""}
+          </h1>
+          <p className="text-muted-foreground mt-1">Track your progress and keep practicing</p>
+        </div>
+        <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <AlertDialogTrigger asChild>
+            <button className="inline-flex items-center gap-2 text-sm font-medium text-destructive hover:text-destructive/80 border border-destructive/30 hover:bg-destructive/5 rounded-lg px-3 py-2 transition-colors shrink-0">
+              <Trash2 className="w-4 h-4" />
+              Clear Progress
+            </button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Clear all progress?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will permanently delete all your practice attempts, mock exam results, and reset your stats to zero. This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={clearing}>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleClearProgress}
+                disabled={clearing}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {clearing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin mr-1" /> Clearing...
+                  </>
+                ) : (
+                  "Yes, Clear All"
+                )}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
 
       {/* Account Status Banner */}
@@ -97,9 +173,6 @@ export default function Dashboard() {
           </div>
         ))}
       </div>
-
-      {/* Leaderboard */}
-      <Leaderboard />
 
       {/* Courses Grid */}
       <div>
