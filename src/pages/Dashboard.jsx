@@ -115,7 +115,7 @@ export default function Dashboard() {
             return (
               <Link
                 key={course.id}
-                to={`/courses/${course.id}`}
+                to={`/practice/${course.id}`}
                 className="bg-card border border-border/60 rounded-xl p-5 hover:border-primary/20 hover:shadow-md transition-all group"
               >
                 <div className="flex items-center gap-3 mb-3">

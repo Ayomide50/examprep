@@ -1,0 +1,44 @@
+{
+  "name": "PracticeSession",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "course_id": {
+      "type": "string"
+    },
+    "course_code": {
+      "type": "string"
+    },
+    "topic_id": {
+      "type": "string"
+    },
+    "total_questions": {
+      "type": "number"
+    },
+    "correct_answers": {
+      "type": "number"
+    },
+    "wrong_answers": {
+      "type": "number"
+    },
+    "score_percentage": {
+      "type": "number"
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "practice",
+        "mock_exam"
+      ],
+      "default": "practice"
+    }
+  },
+  "required": [
+    "user_id",
+    "course_id",
+    "total_questions",
+    "correct_answers"
+  ]
+}

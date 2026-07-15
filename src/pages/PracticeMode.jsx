@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
 import { FREE_TRIAL_LIMIT, getWhatsAppLink } from "@/lib/constants";
-import { ArrowLeft, ArrowRight, CheckCircle, XCircle, RotateCcw, MessageCircle, Lock, BookOpen, Bookmark } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle, XCircle, RotateCcw, MessageCircle, Lock, BookOpen, Bookmark, Trophy, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 
 export default function PracticeMode() {
@@ -13,23 +14,31 @@ export default function PracticeMode() {
   const { toast } = useToast();
   const { profile, user, loading: profileLoading, refresh } = useStudentProfile();
   const [course, setCourse] = useState(null);
+  const [topics, setTopics] = useState([]);
+  const [allQuestions, setAllQuestions] = useState([]);
   const [questions, setQuestions] = useState([]);
+  const [selectedTopic, setSelectedTopic] = useState("all");
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [selected, setSelected] = useState(null);
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [showResult, setShowResult] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [sessionComplete, setSessionComplete] = useState(false);
+  const [sessionAnswered, setSessionAnswered] = useState(0);
+  const [sessionCorrect, setSessionCorrect] = useState(0);
+  const [bookmarkedIds, setBookmarkedIds] = useState(new Set());
   const [trialBlocked, setTrialBlocked] = useState(false);
   const [questionsAnswered, setQuestionsAnswered] = useState(0);
-  const [bookmarkedIds, setBookmarkedIds] = useState(new Set());
 
   useEffect(() => {
     Promise.all([
       base44.entities.Course.filter({ id: courseId }),
       base44.entities.Question.filter({ course_id: courseId, is_active: true }),
+      base44.entities.Topic.filter({ course_id: courseId, is_active: true }),
       base44.entities.Bookmark.filter({ user_id: user?.id, course_id: courseId }, "-created_date", 500).catch(() => []),
-    ]).then(([courseData, qData, bookmarks]) => {
+    ]).then(([courseData, qData, topicData, bookmarks]) => {
       if (courseData.length > 0) setCourse(courseData[0]);
-      // Shuffle questions
+      setTopics(topicData || []);
+      setAllQuestions(qData);
       const shuffled = [...qData].sort(() => Math.random() - 0.5);
       setQuestions(shuffled);
       setBookmarkedIds(new Set((bookmarks || []).map((b) => b.question_id)));
@@ -47,33 +56,54 @@ export default function PracticeMode() {
     }
   }, [profileLoading, profile, courseId]);
 
-  const handleSelect = useCallback(async (answer) => {
-    if (showResult) return;
-    setSelected(answer);
+  const shuffleAndFilter = (topicId, pool) => {
+    const source = pool || allQuestions;
+    const filtered = topicId === "all" ? source : source.filter((q) => q.topic_id === topicId);
+    return [...filtered].sort(() => Math.random() - 0.5);
+  };
+
+  const resetSession = () => {
+    setCurrentIndex(0);
+    setSelectedAnswer(null);
+    setShowResult(false);
+    setSessionAnswered(0);
+    setSessionCorrect(0);
+    setSessionComplete(false);
+  };
+
+  const handleTopicChange = (value) => {
+    setSelectedTopic(value);
+    setQuestions(shuffleAndFilter(value));
+    resetSession();
+  };
+
+  const handleCheckAnswer = async () => {
+    if (!selectedAnswer || showResult) return;
     setShowResult(true);
 
     const question = questions[currentIndex];
-    const isCorrect = answer === question.correct_answer;
+    const isCorrect = selectedAnswer === question.correct_answer;
 
-    // Record attempt
+    const newAnswered = sessionAnswered + 1;
+    const newCorrect = sessionCorrect + (isCorrect ? 1 : 0);
+    setSessionAnswered(newAnswered);
+    setSessionCorrect(newCorrect);
+
     try {
       await base44.entities.PracticeAttempt.create({
         user_id: user.id,
         question_id: question.id,
         course_id: courseId,
         course_code: course?.code || "",
-        selected_answer: answer,
+        selected_answer: selectedAnswer,
         correct_answer: question.correct_answer,
         is_correct: isCorrect,
         mode: "practice",
       });
 
-      // Update profile stats
-      const newAnswered = (profile.total_questions_answered || 0) + 1;
-      const newCorrect = (profile.total_correct || 0) + (isCorrect ? 1 : 0);
       const updateData = {
-        total_questions_answered: newAnswered,
-        total_correct: newCorrect,
+        total_questions_answered: (profile.total_questions_answered || 0) + newAnswered,
+        total_correct: (profile.total_correct || 0) + newCorrect,
       };
 
       if (!profile.is_activated) {
@@ -81,28 +111,53 @@ export default function PracticeMode() {
         freeUsed[courseId] = (freeUsed[courseId] || 0) + 1;
         updateData.free_trial_used = freeUsed;
         setQuestionsAnswered(freeUsed[courseId]);
-        if (freeUsed[courseId] >= FREE_TRIAL_LIMIT) {
-          setTrialBlocked(true);
-        }
       }
 
       await base44.entities.StudentProfile.update(profile.id, updateData);
     } catch (err) {
       console.error(err);
     }
-  }, [showResult, questions, currentIndex, user, courseId, course, profile]);
+  };
 
   const handleNext = () => {
     if (currentIndex < questions.length - 1) {
       setCurrentIndex(currentIndex + 1);
-      setSelected(null);
+      setSelectedAnswer(null);
       setShowResult(false);
     }
   };
 
-  const handleRetry = () => {
-    setSelected(null);
-    setShowResult(false);
+  const handleFinish = async () => {
+    const wrongCount = sessionAnswered - sessionCorrect;
+    const percentage = sessionAnswered > 0 ? Math.round((sessionCorrect / sessionAnswered) * 100) : 0;
+
+    try {
+      await base44.entities.PracticeSession.create({
+        user_id: user.id,
+        course_id: courseId,
+        course_code: course?.code || "",
+        topic_id: selectedTopic !== "all" ? selectedTopic : "",
+        total_questions: sessionAnswered,
+        correct_answers: sessionCorrect,
+        wrong_answers: wrongCount,
+        score_percentage: percentage,
+        mode: "practice",
+      });
+
+      await base44.entities.StudentProfile.update(profile.id, {
+        total_practice_sessions: (profile.total_practice_sessions || 0) + 1,
+      });
+      refresh();
+    } catch (err) {
+      console.error(err);
+    }
+
+    setSessionComplete(true);
+  };
+
+  const handlePracticeAgain = () => {
+    setQuestions(shuffleAndFilter(selectedTopic));
+    resetSession();
   };
 
   const toggleBookmark = async () => {
@@ -151,12 +206,12 @@ export default function PracticeMode() {
         <BookOpen className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
         <h2 className="font-display text-xl font-bold mb-2">No Questions Available</h2>
         <p className="text-muted-foreground mb-4">Questions for this course are being added. Check back soon.</p>
-        <Button variant="outline" onClick={() => navigate(`/courses/${courseId}`)}>Back to Course</Button>
+        <Button variant="outline" onClick={() => navigate("/dashboard")}>Back to Dashboard</Button>
       </div>
     );
   }
 
-  if (trialBlocked && showResult === false) {
+  if (trialBlocked) {
     return (
       <div className="max-w-lg mx-auto text-center py-16">
         <Lock className="w-12 h-12 text-amber-500 mx-auto mb-4" />
@@ -178,34 +233,100 @@ export default function PracticeMode() {
     );
   }
 
+  if (sessionComplete) {
+    const wrongCount = sessionAnswered - sessionCorrect;
+    const percentage = sessionAnswered > 0 ? Math.round((sessionCorrect / sessionAnswered) * 100) : 0;
+    return (
+      <div className="max-w-lg mx-auto text-center py-12">
+        <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 ${
+          percentage >= 50 ? "bg-green-100" : "bg-red-100"
+        }`}>
+          <Trophy className={`w-8 h-8 ${percentage >= 50 ? "text-green-600" : "text-red-500"}`} />
+        </div>
+        <h2 className="font-display text-2xl font-bold mb-2">Practice Complete!</h2>
+        <p className="text-muted-foreground mb-8">
+          {course?.code} • {selectedTopic !== "all" ? (topics.find((t) => t.id === selectedTopic)?.title || "Topic") : "All Topics"}
+        </p>
+
+        <div className="grid grid-cols-3 gap-4 mb-8">
+          <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+            <p className="font-display text-2xl font-bold text-green-700">{sessionCorrect}</p>
+            <p className="text-xs text-green-600">Correct</p>
+          </div>
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+            <p className="font-display text-2xl font-bold text-red-700">{wrongCount}</p>
+            <p className="text-xs text-red-600">Wrong</p>
+          </div>
+          <div className="bg-primary/5 border border-primary/20 rounded-xl p-4">
+            <p className="font-display text-2xl font-bold text-primary">{percentage}%</p>
+            <p className="text-xs text-primary">Score</p>
+          </div>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <Button variant="outline" className="rounded-full gap-2" onClick={handlePracticeAgain}>
+            <RotateCcw className="w-4 h-4" /> Practice Again
+          </Button>
+          <Button className="rounded-full gap-2" onClick={() => navigate("/dashboard")}>
+            <Home className="w-4 h-4" /> Dashboard
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   const question = questions[currentIndex];
   const options = [
     { key: "A", text: question.option_a },
     { key: "B", text: question.option_b },
     { key: "C", text: question.option_c },
     { key: "D", text: question.option_d },
-  ];
+  ].filter((o) => o.text);
+
+  const isLastQuestion = currentIndex === questions.length - 1;
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <button onClick={() => navigate(`/courses/${courseId}`)} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+        <button onClick={() => navigate("/dashboard")} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="w-4 h-4" /> {course?.code}
         </button>
-        <span className="text-sm text-muted-foreground">
-          {currentIndex + 1} / {questions.length}
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-muted-foreground">
+            <span className="text-green-600 font-medium">{sessionCorrect}</span> correct •{" "}
+            <span className="text-red-500 font-medium">{sessionAnswered - sessionCorrect}</span> wrong
+          </span>
           {!profile?.is_activated && (
-            <span className="ml-2 text-amber-600">({questionsAnswered}/{FREE_TRIAL_LIMIT} free)</span>
+            <span className="text-xs text-amber-600">({questionsAnswered}/{FREE_TRIAL_LIMIT} free)</span>
           )}
-        </span>
+        </div>
       </div>
 
-      {/* Progress */}
-      <div className="w-full bg-muted rounded-full h-1.5">
-        <div
-          className="bg-primary h-1.5 rounded-full transition-all duration-300"
-          style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}
-        />
+      {/* Topic filter + progress */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+        <Select value={selectedTopic} onValueChange={handleTopicChange}>
+          <SelectTrigger className="w-full sm:w-56 rounded-full">
+            <SelectValue placeholder="All Topics" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Topics</SelectItem>
+            {topics.map((t) => (
+              <SelectItem key={t.id} value={t.id}>{t.title}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <div className="flex-1 flex items-center gap-3">
+          <span className="text-sm text-muted-foreground shrink-0">
+            {currentIndex + 1} / {questions.length}
+          </span>
+          <div className="w-full bg-muted rounded-full h-1.5">
+            <div
+              className="bg-primary h-1.5 rounded-full transition-all duration-300"
+              style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Question */}
@@ -233,27 +354,29 @@ export default function PracticeMode() {
             if (showResult) {
               if (opt.key === question.correct_answer) {
                 style = "border-green-500 bg-green-50";
-              } else if (opt.key === selected && opt.key !== question.correct_answer) {
+              } else if (opt.key === selectedAnswer && opt.key !== question.correct_answer) {
                 style = "border-red-500 bg-red-50";
               } else {
                 style = "border-border/30 opacity-50";
               }
-            } else if (selected === opt.key) {
+            } else if (selectedAnswer === opt.key) {
               style = "border-primary bg-primary/5";
             }
 
             return (
               <button
                 key={opt.key}
-                onClick={() => handleSelect(opt.key)}
+                onClick={() => !showResult && setSelectedAnswer(opt.key)}
                 disabled={showResult}
                 className={`w-full text-left p-4 rounded-xl border transition-all flex items-start gap-3 ${style}`}
               >
                 <span className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-semibold shrink-0 ${
                   showResult && opt.key === question.correct_answer
                     ? "bg-green-500 text-white"
-                    : showResult && opt.key === selected
+                    : showResult && opt.key === selectedAnswer
                     ? "bg-red-500 text-white"
+                    : selectedAnswer === opt.key
+                    ? "bg-primary text-primary-foreground"
                     : "bg-muted text-muted-foreground"
                 }`}>
                   {opt.key}
@@ -262,7 +385,7 @@ export default function PracticeMode() {
                 {showResult && opt.key === question.correct_answer && (
                   <CheckCircle className="w-5 h-5 text-green-500 ml-auto shrink-0 mt-1" />
                 )}
-                {showResult && opt.key === selected && opt.key !== question.correct_answer && (
+                {showResult && opt.key === selectedAnswer && opt.key !== question.correct_answer && (
                   <XCircle className="w-5 h-5 text-red-500 ml-auto shrink-0 mt-1" />
                 )}
               </button>
@@ -279,23 +402,27 @@ export default function PracticeMode() {
         )}
 
         {/* Actions */}
-        {showResult && (
-          <div className="flex gap-3 mt-6">
-            <Button variant="outline" size="sm" className="rounded-full gap-1" onClick={handleRetry}>
-              <RotateCcw className="w-3 h-3" /> Retry
+        <div className="flex gap-3 mt-6">
+          {!showResult ? (
+            <Button
+              className="rounded-full gap-2"
+              disabled={!selectedAnswer}
+              onClick={handleCheckAnswer}
+            >
+              <CheckCircle className="w-4 h-4" /> Check Answer
             </Button>
-            {currentIndex < questions.length - 1 && !trialBlocked && (
-              <Button size="sm" className="rounded-full gap-1" onClick={handleNext}>
-                Next <ArrowRight className="w-3 h-3" />
+          ) : (
+            isLastQuestion ? (
+              <Button className="rounded-full gap-2" onClick={handleFinish}>
+                Finish <Trophy className="w-4 h-4" />
               </Button>
-            )}
-            {trialBlocked && (
-              <Button size="sm" className="rounded-full gap-1" onClick={() => navigate("/activate")}>
-                Activate Account <ArrowRight className="w-3 h-3" />
+            ) : (
+              <Button className="rounded-full gap-2" onClick={handleNext}>
+                Next <ArrowRight className="w-4 h-4" />
               </Button>
-            )}
-          </div>
-        )}
+            )
+          )}
+        </div>
       </div>
     </div>
   );
