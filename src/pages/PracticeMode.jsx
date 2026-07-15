@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
-import { FREE_TRIAL_LIMIT, getWhatsAppLink } from "@/lib/constants";
+import { FREE_TRIAL_LIMIT, getWhatsAppLink, shuffleArray } from "@/lib/constants";
 import { ArrowLeft, ArrowRight, RotateCcw, MessageCircle, Lock, BookOpen, Bookmark, Trophy, Home, Eye, CheckCircle, XCircle, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -40,7 +40,7 @@ export default function PracticeMode() {
       if (courseData.length > 0) setCourse(courseData[0]);
       setTopics(topicData || []);
       setAllQuestions(qData);
-      const shuffled = [...qData].sort(() => Math.random() - 0.5);
+      const shuffled = shuffleArray(qData);
       setQuestions(shuffled);
       setBookmarkedIds(new Set((bookmarks || []).map((b) => b.question_id)));
       setLoading(false);
@@ -60,7 +60,7 @@ export default function PracticeMode() {
   const shuffleAndFilter = (topicId, count, pool) => {
     const source = pool || allQuestions;
     const filtered = topicId === "all" ? source : source.filter((q) => q.topic_id === topicId);
-    const shuffled = [...filtered].sort(() => Math.random() - 0.5);
+    const shuffled = shuffleArray(filtered);
     if (count && count !== "unlimited") {
       return shuffled.slice(0, parseInt(count));
     }

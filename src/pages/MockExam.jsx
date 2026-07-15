@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
-import { PASS_MARK } from "@/lib/constants";
+import { PASS_MARK, shuffleArray } from "@/lib/constants";
 import { Clock, ChevronLeft, ChevronRight, Flag, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -36,7 +36,7 @@ export default function MockExam() {
       base44.entities.Question.filter({ course_id: courseId, is_active: true }),
     ]).then(([courseData, qData]) => {
       if (courseData.length > 0) setCourse(courseData[0]);
-      const shuffled = [...qData].sort(() => Math.random() - 0.5).slice(0, questionCount);
+      const shuffled = shuffleArray(qData).slice(0, questionCount);
       setQuestions(shuffled);
       setLoading(false);
     });
