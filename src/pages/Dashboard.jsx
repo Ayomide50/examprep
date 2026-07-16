@@ -6,7 +6,6 @@ import { FadeIn, StaggerGroup, StaggerItem } from "@/components/ui/FadeIn";
 import { BookOpen, Target, Trophy, Clock, ArrowRight, AlertCircle, CheckCircle, Calculator, Briefcase, TrendingUp, BarChart3, Users, Megaphone, Settings, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import DashboardCharts from "@/components/dashboard/DashboardCharts";
 import { useToast } from "@/components/ui/use-toast";
 import {
   AlertDialog,
@@ -179,11 +178,6 @@ export default function Dashboard() {
           </StaggerItem>
         ))}
       </StaggerGroup>
-
-      {/* Performance Charts */}
-      <FadeIn>
-        <DashboardCharts userId={user?.id} />
-      </FadeIn>
 
       {/* Courses Grid */}
       <FadeIn>
