@@ -11,7 +11,7 @@ export default function AdminDashboard() {
     Promise.all([
       base44.entities.StudentProfile.list("-created_date", 50),
       base44.entities.Course.list("-created_date", 50),
-      base44.entities.Question.list("-created_date", 50),
+      base44.entities.Question.list("-created_date", 1000),
       base44.entities.ActivationCode.list("-created_date", 50),
     ]).then(([students, courses, questions, codes]) => {
       setStats({
