@@ -164,7 +164,7 @@ export default function AdminCodes() {
           />
         </div>
         <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-40 rounded-full">
+          <SelectTrigger className="w-full sm:w-40 rounded-full">
             <SelectValue placeholder="All Statuses" />
           </SelectTrigger>
           <SelectContent>

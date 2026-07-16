@@ -145,6 +145,7 @@ export default function AdminAdmins() {
             <Loader2 className="w-6 h-6 animate-spin text-primary" />
           </div>
         ) : (
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -186,6 +187,7 @@ export default function AdminAdmins() {
               ))}
             </TableBody>
           </Table>
+          </div>
         )}
       </div>
     </div>

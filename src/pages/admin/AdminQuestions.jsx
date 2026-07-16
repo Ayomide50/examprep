@@ -187,7 +187,7 @@ export default function AdminQuestions() {
           <Input placeholder="Search questions..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 rounded-full" />
         </div>
         <Select value={filterCourse} onValueChange={setFilterCourse}>
-          <SelectTrigger className="w-48 rounded-full">
+          <SelectTrigger className="w-full sm:w-48 rounded-full">
             <SelectValue placeholder="All Courses" />
           </SelectTrigger>
           <SelectContent>
