@@ -1,6 +1,6 @@
-import React from "react";
-import { Star } from "lucide-react";
-import { FadeIn, StaggerGroup, StaggerItem } from "@/components/ui/FadeIn";
+import React, { useState, useCallback } from "react";
+import { Star, ChevronLeft, ChevronRight } from "lucide-react";
+import { FadeIn } from "@/components/ui/FadeIn";
 
 const testimonials = [
   {
@@ -29,7 +29,40 @@ const testimonials = [
   },
 ];
 
+function TestimonialCard({ t }) {
+  return (
+    <div className="bg-white border border-gray-100 rounded-2xl p-6 hover:shadow-lg transition-all duration-300 h-full">
+      <div className="flex gap-1 mb-4">
+        {[...Array(5)].map((_, j) => (
+          <Star key={j} className="w-4 h-4 fill-amber-400 text-amber-400" />
+        ))}
+      </div>
+      <h3 className="font-heading font-semibold text-sm mb-2">{t.title}</h3>
+      <p className="text-muted-foreground text-sm leading-relaxed mb-5">"{t.quote}"</p>
+      <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
+        <div className={`w-9 h-9 rounded-full ${t.color} flex items-center justify-center text-white text-xs font-bold`}>
+          {t.initials}
+        </div>
+        <div>
+          <p className="text-sm font-semibold">{t.name}</p>
+          <p className="text-xs text-muted-foreground">{t.role}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function TestimonialsSection() {
+  const [current, setCurrent] = useState(0);
+
+  const next = useCallback(() => {
+    setCurrent((prev) => (prev + 1) % testimonials.length);
+  }, []);
+
+  const prev = useCallback(() => {
+    setCurrent((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+  }, []);
+
   return (
     <section id="testimonials" className="py-20 md:py-28">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -42,30 +75,62 @@ export default function TestimonialsSection() {
           </p>
         </FadeIn>
 
-        <StaggerGroup className="grid grid-cols-1 md:grid-cols-3 gap-6" stagger={0.12}>
+        {/* Mobile slider */}
+        <div className="md:hidden">
+          <div className="overflow-hidden">
+            <div
+              className="flex transition-transform duration-300 ease-out"
+              style={{ transform: `translateX(-${current * 100}%)` }}
+            >
+              {testimonials.map((t, i) => (
+                <div key={i} className="w-full shrink-0 px-1">
+                  <TestimonialCard t={t} />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Dots + arrows */}
+          <div className="flex items-center justify-center gap-4 mt-6">
+            <button
+              onClick={prev}
+              className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:text-primary hover:border-primary/30 transition-colors"
+              aria-label="Previous testimonial"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+
+            <div className="flex gap-2">
+              {testimonials.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrent(i)}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    i === current ? "w-6 bg-primary" : "w-2 bg-gray-300"
+                  }`}
+                  aria-label={`Go to testimonial ${i + 1}`}
+                />
+              ))}
+            </div>
+
+            <button
+              onClick={next}
+              className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:text-primary hover:border-primary/30 transition-colors"
+              aria-label="Next testimonial"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Desktop grid */}
+        <div className="hidden md:grid md:grid-cols-3 gap-6">
           {testimonials.map((t, i) => (
-            <StaggerItem key={i}>
-              <div className="bg-white border border-gray-100 rounded-2xl p-6 hover:shadow-lg transition-all duration-300 h-full">
-                <div className="flex gap-1 mb-4">
-                  {[...Array(5)].map((_, j) => (
-                    <Star key={j} className="w-4 h-4 fill-amber-400 text-amber-400" />
-                  ))}
-                </div>
-                <h3 className="font-heading font-semibold text-sm mb-2">{t.title}</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed mb-5">"{t.quote}"</p>
-                <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
-                  <div className={`w-9 h-9 rounded-full ${t.color} flex items-center justify-center text-white text-xs font-bold`}>
-                    {t.initials}
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold">{t.name}</p>
-                    <p className="text-xs text-muted-foreground">{t.role}</p>
-                  </div>
-                </div>
-              </div>
-            </StaggerItem>
+            <FadeIn key={i} delay={i * 0.12}>
+              <TestimonialCard t={t} />
+            </FadeIn>
           ))}
-        </StaggerGroup>
+        </div>
       </div>
     </section>
   );

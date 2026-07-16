@@ -77,7 +77,7 @@ export default function Footer() {
 
         <div className="mt-12 pt-8 border-t border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-gray-500">
-            © {new Date().getFullYear()} MyStudyApp. All rights reserved.
+            © 2026 MyStudyApp. All rights reserved.
           </p>
           <p className="text-sm text-gray-500">Built for Nigerian students.</p>
         </div>
