@@ -7,8 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Mail, Lock, UserPlus, Loader2, ArrowLeft, KeyRound } from "lucide-react";
 import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function Register() {
+  const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -81,15 +83,8 @@ export default function Register() {
     }
   };
 
-  const handleGoogle = async () => {
-    setGoogleLoading(true);
-    setError("");
-    try {
-      await base44.auth.loginWithProvider("google", "/");
-    } catch (err) {
-      setError(err?.message || "Google sign-in failed");
-      setGoogleLoading(false);
-    }
+  const handleGoogle = () => {
+    toast({ title: "Social sign-in is coming soon" });
   };
 
   if (step === "otp") {

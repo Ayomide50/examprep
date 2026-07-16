@@ -7,8 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Mail, Lock, LogIn, Loader2, ArrowLeft } from "lucide-react";
 import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function Login() {
+  const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -29,15 +31,8 @@ export default function Login() {
     }
   };
 
-  const handleGoogle = async () => {
-    setGoogleLoading(true);
-    setError("");
-    try {
-      await base44.auth.loginWithProvider("google", "/");
-    } catch (err) {
-      setError(err?.message || "Google sign-in failed");
-      setGoogleLoading(false);
-    }
+  const handleGoogle = () => {
+    toast({ title: "Social sign-in is coming soon" });
   };
 
   return (
