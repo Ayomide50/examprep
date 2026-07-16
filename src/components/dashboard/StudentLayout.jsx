@@ -26,7 +26,7 @@ export default function StudentLayout() {
   return (
     <div className="min-h-screen bg-background">
       {/* Mobile header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-card/80 backdrop-blur-xl border-b border-border h-14 flex items-center justify-between px-4">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-card border-b border-border h-14 flex items-center justify-between px-4">
         <Link to="/dashboard" className="flex items-center gap-2">
           <BookOpen className="w-5 h-5 text-primary" />
           <span className="font-display font-bold">MyStudyApp</span>
