@@ -6,13 +6,13 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 import ThemeToggle from "@/components/ThemeToggle";
 
 const navItems = [
-  { path: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-  { path: "/courses", icon: GraduationCap, label: "Courses" },
-  { path: "/courses", icon: Pencil, label: "Practice" },
-  { path: "/mock-exams", icon: FileText, label: "Mock Exams" },
-  { path: "/history", icon: Clock, label: "History" },
-  { path: "/activate", icon: KeyRound, label: "Activate" },
-  { path: "/profile", icon: User, label: "Profile" },
+  { path: "/dashboard", icon: LayoutDashboard, label: "Dashboard", match: (p) => p === "/dashboard" },
+  { path: "/courses", icon: GraduationCap, label: "Courses", match: (p) => p.startsWith("/courses") },
+  { path: "/courses", icon: Pencil, label: "Practice", match: (p) => p.startsWith("/practice") },
+  { path: "/mock-exams", icon: FileText, label: "Mock Exams", match: (p) => p.startsWith("/mock-exam") },
+  { path: "/history", icon: Clock, label: "History", match: (p) => p === "/history" },
+  { path: "/activate", icon: KeyRound, label: "Activate", match: (p) => p === "/activate" },
+  { path: "/profile", icon: User, label: "Profile", match: (p) => p === "/profile" },
 ];
 
 export default function StudentLayout() {
@@ -49,10 +49,10 @@ export default function StudentLayout() {
 
           <nav className="flex-1 p-4 pt-20 lg:pt-4 space-y-1">
             {navItems.map((item) => {
-              const isActive = location.pathname === item.path;
+              const isActive = item.match(location.pathname);
               return (
                 <Link
-                  key={item.path}
+                  key={item.label}
                   to={item.path}
                   onClick={() => setSidebarOpen(false)}
                   className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
