@@ -17,9 +17,18 @@ export default function Login() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    toast({ title: "Sign-in is coming soon" });
+    setLoading(true);
+    setError("");
+    try {
+      await base44.auth.loginViaEmailPassword(email, password);
+      window.location.href = "/";
+    } catch (err) {
+      setError(err?.message || "Invalid email or password");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleGoogle = () => {
