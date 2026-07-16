@@ -81,17 +81,17 @@ const AuthenticatedApp = () => {
           <Route path="/activate" element={<Activate />} />
           <Route path="/profile" element={<Profile />} />
         </Route>
+      </Route>
 
-        {/* Admin routes */}
-        <Route element={<AdminRoute />}>
-          <Route element={<AdminLayout />}>
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/students" element={<AdminStudents />} />
-            <Route path="/admin/courses" element={<AdminCourses />} />
-            <Route path="/admin/questions" element={<AdminQuestions />} />
-            <Route path="/admin/codes" element={<AdminCodes />} />
-            <Route path="/admin/admins" element={<AdminAdmins />} />
-          </Route>
+      {/* Admin routes — accessible via URL + password only */}
+      <Route element={<AdminRoute />}>
+        <Route element={<AdminLayout />}>
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/students" element={<AdminStudents />} />
+          <Route path="/admin/courses" element={<AdminCourses />} />
+          <Route path="/admin/questions" element={<AdminQuestions />} />
+          <Route path="/admin/codes" element={<AdminCodes />} />
+          <Route path="/admin/admins" element={<AdminAdmins />} />
         </Route>
       </Route>
 
