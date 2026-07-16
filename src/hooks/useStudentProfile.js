@@ -16,11 +16,10 @@ export function useStudentProfile() {
         setProfile(profiles[0]);
       } else {
         // Create profile for new student
-        const pendingName = localStorage.getItem("pending_full_name") || "";
         const newProfile = await base44.entities.StudentProfile.create({
           user_id: me.id,
           email: me.email,
-          full_name: me.full_name || pendingName || "",
+          full_name: me.full_name || "",
           is_activated: false,
           free_trial_used: {},
           total_questions_answered: 0,
@@ -29,7 +28,6 @@ export function useStudentProfile() {
           total_mock_exams: 0,
         });
         setProfile(newProfile);
-        if (pendingName) localStorage.removeItem("pending_full_name");
       }
     } catch (err) {
       console.error(err);

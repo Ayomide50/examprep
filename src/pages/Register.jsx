@@ -4,11 +4,10 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Mail, Lock, UserPlus, User, Loader2, ArrowLeft, KeyRound, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, UserPlus, Loader2, ArrowLeft, KeyRound, Eye, EyeOff } from "lucide-react";
 import AuthLayout from "@/components/AuthLayout";
 
 export default function Register() {
-  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -63,9 +62,6 @@ export default function Register() {
     setError("");
     try {
       const res = await base44.auth.verifyOtp({ email, otpCode: otp });
-      if (fullName.trim()) {
-        localStorage.setItem("pending_full_name", fullName.trim());
-      }
       base44.auth.setToken(res.access_token);
       window.location.href = "/";
     } catch (err) {
@@ -159,22 +155,6 @@ export default function Register() {
       }
     >
       <form onSubmit={handleRegister} className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="fullname">Full name</Label>
-          <div className="relative">
-            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-            <Input
-              id="fullname"
-              type="text"
-              autoComplete="name"
-              placeholder="John Doe"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              className="pl-10 h-12"
-              required
-            />
-          </div>
-        </div>
         <div className="space-y-2">
           <Label htmlFor="email">Email address</Label>
           <div className="relative">

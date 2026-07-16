@@ -23,7 +23,6 @@ export default function AdminStudents() {
   const { user: currentUser } = useAuth();
   const [students, setStudents] = useState([]);
   const [adminUserIds, setAdminUserIds] = useState(new Set());
-  const [userMap, setUserMap] = useState(new Map());
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
@@ -36,8 +35,6 @@ export default function AdminStudents() {
         base44.entities.User.list("-created_date", 200),
       ]);
       setStudents(profiles);
-      const userMap = new Map(users.map((u) => [u.id, u]));
-      setUserMap(userMap);
       setAdminUserIds(new Set(users.filter((u) => u.role === "admin").map((u) => u.id)));
     } catch (error) {
       toast({ title: "Failed to load students", variant: "destructive" });
@@ -69,16 +66,10 @@ export default function AdminStudents() {
     }
   };
 
-  const getName = (s) => s.full_name || userMap.get(s.user_id)?.full_name || "";
-
   const filtered = students.filter(
-    (s) => {
-      const name = getName(s);
-      return (
-        (s.email || "").toLowerCase().includes(search.toLowerCase()) ||
-        name.toLowerCase().includes(search.toLowerCase())
-      );
-    }
+    (s) =>
+      (s.email || "").toLowerCase().includes(search.toLowerCase()) ||
+      (s.full_name || "").toLowerCase().includes(search.toLowerCase())
   );
 
   if (loading) {
@@ -128,18 +119,18 @@ export default function AdminStudents() {
                       {s.profile_image ? (
                         <img
                           src={s.profile_image}
-                          alt={getName(s) || "student"}
+                          alt={s.full_name || "student"}
                           className="w-9 h-9 rounded-full object-cover border border-border flex-shrink-0"
                         />
                       ) : (
                         <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                           <span className="text-xs font-medium text-primary">
-                            {(getName(s) || s.email || "?").charAt(0).toUpperCase()}
+                            {(s.full_name || s.email || "?").charAt(0).toUpperCase()}
                           </span>
                         </div>
                       )}
                       <div className="min-w-0">
-                        <p className="font-medium truncate">{getName(s) || "—"}</p>
+                        <p className="font-medium truncate">{s.full_name || "—"}</p>
                         <p className="text-xs text-muted-foreground truncate">{s.email}</p>
                       </div>
                     </div>
@@ -198,7 +189,7 @@ export default function AdminStudents() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete this student?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete {deleteTarget ? (deleteTarget.full_name || userMap.get(deleteTarget.user_id)?.full_name || deleteTarget.email) : ""} and their profile data. This action cannot be undone.
+              This will permanently delete {deleteTarget?.full_name || deleteTarget?.email} and their profile data. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
