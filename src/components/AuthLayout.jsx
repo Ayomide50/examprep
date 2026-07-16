@@ -7,8 +7,8 @@ export default function AuthLayout({ icon: Icon, title, subtitle, footer, childr
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-10">
-          <div className="flex items-center justify-center gap-3 mb-6">
-            <Link to="/landing" className="inline-flex items-center gap-2">
+          <div className="flex items-center justify-center gap-1.5 mb-6">
+            <Link to="/" className="inline-flex items-center gap-2">
               <BookOpen className="w-6 h-6 text-primary" />
               <span className="font-display font-bold text-xl">MyStudyApp</span>
             </Link>
