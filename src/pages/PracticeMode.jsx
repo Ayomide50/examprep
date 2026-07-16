@@ -99,6 +99,7 @@ export default function PracticeMode() {
     setSessionAnswered(newAnswered);
     setSessionCorrect(newCorrect);
 
+    let hitTrialLimit = false;
     try {
       await base44.entities.PracticeAttempt.create({
         user_id: user.id,
@@ -115,20 +116,23 @@ export default function PracticeMode() {
         total_questions_answered: (profile.total_questions_answered || 0) + newAnswered,
         total_correct: (profile.total_correct || 0) + newCorrect,
       };
-
       if (!profile.is_activated) {
         const freeUsed = { ...(profile.free_trial_used || {}) };
         freeUsed[courseId] = (freeUsed[courseId] || 0) + 1;
         updateData.free_trial_used = freeUsed;
         setQuestionsAnswered(freeUsed[courseId]);
+        hitTrialLimit = freeUsed[courseId] >= FREE_TRIAL_LIMIT;
       }
 
       await base44.entities.StudentProfile.update(profile.id, updateData);
+      // Update local profile so subsequent answers use the updated count
+      profile.free_trial_used = updateData.free_trial_used;
+      if (hitTrialLimit) setTrialBlocked(true);
     } catch (err) {
       console.error(err);
     }
 
-    return { answered: newAnswered, correct: newCorrect };
+    return { answered: newAnswered, correct: newCorrect, hitTrialLimit: hitTrialLimit || false };
   };
 
   const finishSession = async (answered, correct) => {
@@ -162,7 +166,11 @@ export default function PracticeMode() {
   };
 
   const handleNext = async () => {
-    const { answered, correct } = await saveCurrentAnswer();
+    const { answered, correct, hitTrialLimit } = await saveCurrentAnswer();
+    if (hitTrialLimit) {
+      await finishSession(answered, correct);
+      return;
+    }
     if (currentIndex < questions.length - 1) {
       setCurrentIndex(currentIndex + 1);
       setSelectedAnswer(null);
