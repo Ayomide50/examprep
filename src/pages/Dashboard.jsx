@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
+import { FadeIn, StaggerGroup, StaggerItem } from "@/components/ui/FadeIn";
 import { BookOpen, Target, Trophy, Clock, ArrowRight, AlertCircle, CheckCircle, Calculator, Briefcase, TrendingUp, BarChart3, Users, Megaphone, Settings, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -91,12 +92,14 @@ export default function Dashboard() {
     <div className="max-w-6xl mx-auto space-y-8">
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="font-display text-2xl md:text-3xl font-bold">
-            Welcome back{user?.full_name ? `, ${user.full_name.split(" ")[0]}` : ""}
-          </h1>
-          <p className="text-muted-foreground mt-1">Track your progress and keep practicing</p>
-        </div>
+        <FadeIn>
+          <div>
+            <h1 className="font-display text-2xl md:text-3xl font-bold">
+              Welcome back{user?.full_name ? `, ${user.full_name.split(" ")[0]}` : ""}
+            </h1>
+            <p className="text-muted-foreground mt-1">Track your progress and keep practicing</p>
+          </div>
+        </FadeIn>
         <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <AlertDialogTrigger asChild>
             <button className="inline-flex items-center gap-2 text-sm font-medium text-destructive hover:text-destructive/80 border border-destructive/30 hover:bg-destructive/5 rounded-lg px-3 py-2 transition-colors shrink-0">
@@ -160,83 +163,92 @@ export default function Dashboard() {
       )}
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <StaggerGroup className="grid grid-cols-2 md:grid-cols-4 gap-4" stagger={0.1}>
         {[
           { label: "Questions Answered", value: profile?.total_questions_answered || 0, icon: BookOpen, color: "text-blue-600" },
           { label: "Accuracy", value: `${accuracy}%`, icon: Target, color: "text-green-600" },
           { label: "Mock Exams", value: profile?.total_mock_exams || 0, icon: Trophy, color: "text-purple-600" },
           { label: "Practice Sessions", value: profile?.total_practice_sessions || 0, icon: Clock, color: "text-orange-600" },
         ].map((stat) => (
-          <div key={stat.label} className="bg-card border border-border/60 rounded-xl p-5">
-            <stat.icon className={`w-5 h-5 ${stat.color} mb-3`} />
-            <p className="text-2xl font-display font-bold">{stat.value}</p>
-            <p className="text-xs text-muted-foreground mt-1">{stat.label}</p>
-          </div>
+          <StaggerItem key={stat.label}>
+            <div className="bg-card border border-border/60 rounded-xl p-5 h-full">
+              <stat.icon className={`w-5 h-5 ${stat.color} mb-3`} />
+              <p className="text-2xl font-display font-bold">{stat.value}</p>
+              <p className="text-xs text-muted-foreground mt-1">{stat.label}</p>
+            </div>
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerGroup>
 
       {/* Performance Charts */}
-      <DashboardCharts userId={user?.id} />
+      <FadeIn>
+        <DashboardCharts userId={user?.id} />
+      </FadeIn>
 
       {/* Courses Grid */}
-      <div>
+      <FadeIn>
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-display text-lg font-semibold">Your Courses</h2>
           <Link to="/courses" className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1">
             View all <ArrowRight className="w-3 h-3" />
           </Link>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <StaggerGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" stagger={0.08}>
           {courses.slice(0, 6).map((course) => {
             const Icon = iconMap[course.icon] || BookOpen;
             return (
-              <Link
-                key={course.id}
-                to={`/practice/${course.id}`}
-                className="bg-card border border-border/60 rounded-xl p-5 hover:border-primary/20 hover:shadow-md transition-all group"
-              >
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-9 h-9 rounded-lg bg-primary/5 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-                    <Icon className="w-4 h-4 text-primary" />
+              <StaggerItem key={course.id}>
+                <Link
+                  to={`/practice/${course.id}`}
+                  className="bg-card border border-border/60 rounded-xl p-5 hover:border-primary/20 hover:shadow-md transition-all group block h-full"
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-9 h-9 rounded-lg bg-primary/5 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+                      <Icon className="w-4 h-4 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-mono text-muted-foreground">{course.code}</p>
+                      <h3 className="font-heading font-semibold text-sm truncate">{course.title}</h3>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-mono text-muted-foreground">{course.code}</p>
-                    <h3 className="font-heading font-semibold text-sm truncate">{course.title}</h3>
-                  </div>
-                </div>
-                <p className="text-xs text-muted-foreground">{course.question_count || 0}+ questions</p>
-              </Link>
+                  <p className="text-xs text-muted-foreground">{course.question_count || 0}+ questions</p>
+                </Link>
+              </StaggerItem>
             );
           })}
-        </div>
-      </div>
+        </StaggerGroup>
+      </FadeIn>
 
       {/* Recent Mock Exams */}
       {recentExams.length > 0 && (
-        <div>
-          <h2 className="font-display text-lg font-semibold mb-4">Recent Mock Exams</h2>
-          <div className="space-y-3">
-            {recentExams.map((exam) => (
-              <div key={exam.id} className="bg-card border border-border/60 rounded-xl p-4 flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-sm">{exam.course_code}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {exam.correct_answers}/{exam.total_questions} correct
-                  </p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="text-right">
-                    <p className={`font-display font-bold text-lg ${exam.passed ? "text-green-600" : "text-red-500"}`}>
-                      {Math.round(exam.score_percentage)}%
-                    </p>
-                    <p className="text-xs text-muted-foreground">{exam.passed ? "Passed" : "Failed"}</p>
+        <FadeIn>
+          <div>
+            <h2 className="font-display text-lg font-semibold mb-4">Recent Mock Exams</h2>
+            <StaggerGroup className="space-y-3" stagger={0.08}>
+              {recentExams.map((exam) => (
+                <StaggerItem key={exam.id}>
+                  <div className="bg-card border border-border/60 rounded-xl p-4 flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-sm">{exam.course_code}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {exam.correct_answers}/{exam.total_questions} correct
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="text-right">
+                        <p className={`font-display font-bold text-lg ${exam.passed ? "text-green-600" : "text-red-500"}`}>
+                          {Math.round(exam.score_percentage)}%
+                        </p>
+                        <p className="text-xs text-muted-foreground">{exam.passed ? "Passed" : "Failed"}</p>
+                      </div>
+                      <Progress value={exam.score_percentage} className="w-16 h-2 hidden sm:block" />
+                    </div>
                   </div>
-                  <Progress value={exam.score_percentage} className="w-16 h-2 hidden sm:block" />
-                </div>
-              </div>
-            ))}
+                </StaggerItem>
+              ))}
+            </StaggerGroup>
           </div>
-        </div>
+        </FadeIn>
       )}
     </div>
   );

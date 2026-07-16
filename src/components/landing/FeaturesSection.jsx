@@ -1,5 +1,6 @@
 import React from "react";
 import { BookOpen, Clock, MessageCircle, BarChart3, Smartphone, Brain } from "lucide-react";
+import { FadeIn, StaggerGroup, StaggerItem } from "@/components/ui/FadeIn";
 
 const features = [
   {
@@ -50,7 +51,7 @@ export default function FeaturesSection() {
   return (
     <section id="features" className="py-20 md:py-28 bg-gray-50/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="text-center mb-14">
+        <FadeIn className="text-center mb-14">
           <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-4 py-1.5 mb-4">
             <span className="text-sm font-semibold text-primary">Platform Features</span>
           </div>
@@ -60,22 +61,21 @@ export default function FeaturesSection() {
           <p className="text-muted-foreground text-lg max-w-xl mx-auto">
             Comprehensive tools designed to help you prepare effectively and walk into your exam with full confidence.
           </p>
-        </div>
+        </FadeIn>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <StaggerGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" stagger={0.1}>
           {features.map((feature) => (
-            <div
-              key={feature.title}
-              className="bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-xl hover:border-primary/20 transition-all duration-300 group"
-            >
-              <div className={`w-11 h-11 rounded-xl ${feature.iconBg} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                <feature.icon className={`w-5 h-5 ${feature.color.replace(" bg-", "").split(" ")[0]}`} />
+            <StaggerItem key={feature.title}>
+              <div className="bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-xl hover:border-primary/20 transition-all duration-300 group h-full">
+                <div className={`w-11 h-11 rounded-xl ${feature.iconBg} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                  <feature.icon className={`w-5 h-5 ${feature.color.replace(" bg-", "").split(" ")[0]}`} />
+                </div>
+                <h3 className="font-heading font-semibold text-base mb-2">{feature.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
               </div>
-              <h3 className="font-heading font-semibold text-base mb-2">{feature.title}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
-            </div>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerGroup>
       </div>
     </section>
   );

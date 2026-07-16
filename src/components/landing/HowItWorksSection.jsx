@@ -1,5 +1,6 @@
 import React from "react";
 import { UserPlus, BookOpen, MessageCircle, CreditCard, KeyRound, Unlock } from "lucide-react";
+import { FadeIn, StaggerGroup, StaggerItem } from "@/components/ui/FadeIn";
 
 const steps = [
   {
@@ -50,7 +51,7 @@ export default function HowItWorksSection() {
   return (
     <section id="how-it-works" className="py-20 md:py-28 bg-gray-50/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="text-center mb-14">
+        <FadeIn className="text-center mb-14">
           <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-4 py-1.5 mb-4">
             <span className="text-sm font-semibold text-primary">Simple Process</span>
           </div>
@@ -60,27 +61,26 @@ export default function HowItWorksSection() {
           <p className="text-muted-foreground text-lg max-w-xl mx-auto">
             Get started in 6 simple steps
           </p>
-        </div>
+        </FadeIn>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <StaggerGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" stagger={0.1}>
           {steps.map((step, i) => (
-            <div
-              key={i}
-              className="bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-lg transition-all duration-300 group"
-            >
-              <div className="flex items-start gap-4">
-                <div className={`w-11 h-11 rounded-xl ${step.iconBg} flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform`}>
-                  <step.icon className={`w-5 h-5 ${step.color.split(" ")[0]}`} />
-                </div>
-                <div>
-                  <span className="text-xs font-semibold text-primary uppercase tracking-wider">Step {i + 1}</span>
-                  <h3 className="font-heading font-semibold text-sm mt-1 mb-1.5">{step.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{step.description}</p>
+            <StaggerItem key={i}>
+              <div className="bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-lg transition-all duration-300 group h-full">
+                <div className="flex items-start gap-4">
+                  <div className={`w-11 h-11 rounded-xl ${step.iconBg} flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform`}>
+                    <step.icon className={`w-5 h-5 ${step.color.split(" ")[0]}`} />
+                  </div>
+                  <div>
+                    <span className="text-xs font-semibold text-primary uppercase tracking-wider">Step {i + 1}</span>
+                    <h3 className="font-heading font-semibold text-sm mt-1 mb-1.5">{step.title}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{step.description}</p>
+                  </div>
                 </div>
               </div>
-            </div>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerGroup>
       </div>
     </section>
   );

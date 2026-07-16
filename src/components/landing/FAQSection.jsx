@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { ChevronDown } from "lucide-react";
+import { FadeIn, StaggerGroup, StaggerItem } from "@/components/ui/FadeIn";
 
 const faqs = [
   {
@@ -42,7 +43,7 @@ export default function FAQSection() {
   return (
     <section id="faq" className="py-20 md:py-28 bg-gray-50/50">
       <div className="max-w-3xl mx-auto px-4 sm:px-6">
-        <div className="text-center mb-14">
+        <FadeIn className="text-center mb-14">
           <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-4 py-1.5 mb-4">
             <span className="text-sm font-semibold text-primary">FAQ</span>
           </div>
@@ -52,37 +53,36 @@ export default function FAQSection() {
           <p className="text-muted-foreground text-lg">
             Everything you need to know about MyStudyApp
           </p>
-        </div>
+        </FadeIn>
 
-        <div className="space-y-3">
+        <StaggerGroup className="space-y-3" stagger={0.08}>
           {faqs.map((faq, i) => (
-            <div
-              key={i}
-              className="bg-white border border-gray-200 rounded-xl overflow-hidden"
-            >
-              <button
-                onClick={() => toggle(i)}
-                className="w-full flex items-center justify-between px-6 py-4 text-left"
-              >
-                <span className="font-medium text-sm md:text-base text-gray-800">
-                  {faq.question}
-                </span>
-                <ChevronDown
-                  className={`w-5 h-5 text-gray-400 shrink-0 ml-4 transition-transform duration-200 ${
-                    openIndex === i ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
-              {openIndex === i && (
-                <div className="px-6 pb-4">
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    {faq.answer}
-                  </p>
-                </div>
-              )}
-            </div>
+            <StaggerItem key={i}>
+              <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+                <button
+                  onClick={() => toggle(i)}
+                  className="w-full flex items-center justify-between px-6 py-4 text-left"
+                >
+                  <span className="font-medium text-sm md:text-base text-gray-800">
+                    {faq.question}
+                  </span>
+                  <ChevronDown
+                    className={`w-5 h-5 text-gray-400 shrink-0 ml-4 transition-transform duration-200 ${
+                      openIndex === i ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+                {openIndex === i && (
+                  <div className="px-6 pb-4">
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {faq.answer}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerGroup>
       </div>
     </section>
   );

@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, BookOpen, CheckCircle, Users, FileText, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { FadeInLoad, StaggerGroup, StaggerItem } from "@/components/ui/FadeIn";
 
 const stats = [
   { value: "700+", label: "Practice Questions", sub: "Across all 7 courses", icon: FileText, color: "text-blue-600 bg-blue-50" },
@@ -19,51 +20,58 @@ export default function HeroSection() {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6">
         {/* Hero Text */}
         <div className="text-center max-w-3xl mx-auto mb-16 md:mb-20">
-          <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-4 py-1.5 mb-6">
-            <Award className="w-4 h-4 text-primary" />
-            <span className="text-sm font-semibold text-primary">Platform Features</span>
-          </div>
+          <FadeInLoad delay={0.05}>
+            <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-4 py-1.5 mb-6">
+              <Award className="w-4 h-4 text-primary" />
+              <span className="text-sm font-semibold text-primary">Platform Features</span>
+            </div>
+          </FadeInLoad>
 
-          <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.1] mb-5">
-            Everything You Need{" "}
-            <span className="text-primary">to Excel</span>
-          </h1>
+          <FadeInLoad delay={0.15}>
+            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.1] mb-5">
+              Everything You Need{" "}
+              <span className="text-primary">to Excel</span>
+            </h1>
+          </FadeInLoad>
 
-          <p className="text-lg text-muted-foreground max-w-xl mx-auto mb-8 leading-relaxed">
-            Comprehensive tools designed to help you prepare effectively and walk into your exam with full confidence.
-          </p>
+          <FadeInLoad delay={0.25}>
+            <p className="text-lg text-muted-foreground max-w-xl mx-auto mb-8 leading-relaxed">
+              Comprehensive tools designed to help you prepare effectively and walk into your exam with full confidence.
+            </p>
+          </FadeInLoad>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Link to="/register">
-              <Button size="lg" className="h-12 px-8 rounded-xl text-base font-semibold gap-2 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-shadow">
-                Start Free Trial
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            </Link>
-            <Link to="/login">
-              <Button variant="outline" size="lg" className="h-12 px-8 rounded-xl text-base font-medium border-2">
-                Sign In
-              </Button>
-            </Link>
-          </div>
+          <FadeInLoad delay={0.35}>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Link to="/register">
+                <Button size="lg" className="h-12 px-8 rounded-xl text-base font-semibold gap-2 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-shadow">
+                  Start Free Trial
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
+              <Link to="/login">
+                <Button variant="outline" size="lg" className="h-12 px-8 rounded-xl text-base font-medium border-2">
+                  Sign In
+                </Button>
+              </Link>
+            </div>
+          </FadeInLoad>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+        <StaggerGroup className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto" stagger={0.12}>
           {stats.map((stat) => (
-            <div
-              key={stat.label}
-              className="bg-white rounded-xl border border-gray-100 p-5 text-center hover:shadow-lg hover:border-primary/20 transition-all duration-300 group"
-            >
-              <div className={`w-11 h-11 rounded-xl ${stat.color} flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform`}>
-                <stat.icon className="w-5 h-5" />
+            <StaggerItem key={stat.label}>
+              <div className="bg-white rounded-xl border border-gray-100 p-5 text-center hover:shadow-lg hover:border-primary/20 transition-all duration-300 group h-full">
+                <div className={`w-11 h-11 rounded-xl ${stat.color} flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform`}>
+                  <stat.icon className="w-5 h-5" />
+                </div>
+                <p className="font-display text-2xl md:text-3xl font-bold text-gray-900">{stat.value}</p>
+                <p className="text-sm font-medium text-gray-900 mt-0.5">{stat.label}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{stat.sub}</p>
               </div>
-              <p className="font-display text-2xl md:text-3xl font-bold text-gray-900">{stat.value}</p>
-              <p className="text-sm font-medium text-gray-900 mt-0.5">{stat.label}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">{stat.sub}</p>
-            </div>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerGroup>
       </div>
     </section>
   );

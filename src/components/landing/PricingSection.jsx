@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Check, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { FadeIn } from "@/components/ui/FadeIn";
 
 const features = [
   "Full access to all available courses",
@@ -18,7 +19,7 @@ export default function PricingSection() {
   return (
     <section id="pricing" className="py-20 md:py-28">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="text-center mb-14">
+        <FadeIn className="text-center mb-14">
           <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-4 py-1.5 mb-4">
             <span className="text-sm font-semibold text-primary">Simple Pricing</span>
           </div>
@@ -28,9 +29,9 @@ export default function PricingSection() {
           <p className="text-muted-foreground text-lg max-w-xl mx-auto">
             Everything you need to pass your exams. No hidden fees.
           </p>
-        </div>
+        </FadeIn>
 
-        <div className="max-w-md mx-auto">
+        <FadeIn className="max-w-md mx-auto">
           <div className="bg-[#0f172a] rounded-2xl p-8 relative overflow-hidden">
             <div className="flex justify-center -mt-12 mb-6">
               <span className="inline-flex items-center bg-primary/20 text-primary text-xs font-semibold px-4 py-1.5 rounded-full">
@@ -67,7 +68,7 @@ export default function PricingSection() {
               Bank transfer payment + WhatsApp activation
             </p>
           </div>
-        </div>
+        </FadeIn>
       </div>
     </section>
   );

@@ -1,5 +1,6 @@
 import React from "react";
 import { Star } from "lucide-react";
+import { FadeIn, StaggerGroup, StaggerItem } from "@/components/ui/FadeIn";
 
 const testimonials = [
   {
@@ -32,37 +33,39 @@ export default function TestimonialsSection() {
   return (
     <section id="testimonials" className="py-20 md:py-28">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="text-center mb-14">
+        <FadeIn className="text-center mb-14">
           <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight mb-3">
             What Students Say
           </h2>
           <p className="text-muted-foreground text-lg max-w-xl mx-auto">
             Join hundreds of students who have transformed their exam preparation.
           </p>
-        </div>
+        </FadeIn>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <StaggerGroup className="grid grid-cols-1 md:grid-cols-3 gap-6" stagger={0.12}>
           {testimonials.map((t, i) => (
-            <div key={i} className="bg-white border border-gray-100 rounded-2xl p-6 hover:shadow-lg transition-all duration-300">
-              <div className="flex gap-1 mb-4">
-                {[...Array(5)].map((_, j) => (
-                  <Star key={j} className="w-4 h-4 fill-amber-400 text-amber-400" />
-                ))}
-              </div>
-              <h3 className="font-heading font-semibold text-sm mb-2">{t.title}</h3>
-              <p className="text-muted-foreground text-sm leading-relaxed mb-5">"{t.quote}"</p>
-              <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
-                <div className={`w-9 h-9 rounded-full ${t.color} flex items-center justify-center text-white text-xs font-bold`}>
-                  {t.initials}
+            <StaggerItem key={i}>
+              <div className="bg-white border border-gray-100 rounded-2xl p-6 hover:shadow-lg transition-all duration-300 h-full">
+                <div className="flex gap-1 mb-4">
+                  {[...Array(5)].map((_, j) => (
+                    <Star key={j} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                  ))}
                 </div>
-                <div>
-                  <p className="text-sm font-semibold">{t.name}</p>
-                  <p className="text-xs text-muted-foreground">{t.role}</p>
+                <h3 className="font-heading font-semibold text-sm mb-2">{t.title}</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed mb-5">"{t.quote}"</p>
+                <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
+                  <div className={`w-9 h-9 rounded-full ${t.color} flex items-center justify-center text-white text-xs font-bold`}>
+                    {t.initials}
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold">{t.name}</p>
+                    <p className="text-xs text-muted-foreground">{t.role}</p>
+                  </div>
                 </div>
               </div>
-            </div>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerGroup>
       </div>
     </section>
   );
