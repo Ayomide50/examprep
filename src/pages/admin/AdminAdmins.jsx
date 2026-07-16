@@ -55,10 +55,16 @@ export default function AdminAdmins() {
       setEmail("");
       fetchUsers();
     } catch (err) {
+      const description =
+        err?.response?.data?.detail ||
+        err?.response?.data?.message ||
+        err?.data?.message ||
+        err?.message ||
+        "Failed to send invitation";
       toast({
         variant: "destructive",
         title: "Error",
-        description: err.message || "Failed to send invitation",
+        description,
       });
     } finally {
       setInviting(false);
