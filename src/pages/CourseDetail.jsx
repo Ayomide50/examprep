@@ -77,12 +77,12 @@ export default function CourseDetail() {
                     : "You've used all free trial questions for this course. Activate your account for full access."}
                 </p>
                 {freeRemaining === 0 && (
-                  <div className="flex gap-2 mt-3">
-                    <Link to="/activate">
-                      <Button size="sm" variant="outline" className="rounded-full">Enter Activation Code</Button>
+                  <div className="flex flex-col sm:flex-row gap-2 mt-3">
+                    <Link to="/activate" className="w-full sm:w-auto">
+                      <Button size="sm" variant="outline" className="rounded-full w-full">Enter Activation Code</Button>
                     </Link>
-                    <a href={getWhatsAppLink(user?.email || "")} target="_blank" rel="noopener noreferrer">
-                      <Button size="sm" className="rounded-full bg-green-500 hover:bg-green-600 gap-1">
+                    <a href={getWhatsAppLink(user?.email || "")} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
+                      <Button size="sm" className="rounded-full bg-green-500 hover:bg-green-600 gap-1 w-full">
                         <MessageCircle className="w-3 h-3" /> Activate via WhatsApp
                       </Button>
                     </a>
