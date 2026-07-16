@@ -7,12 +7,14 @@ export default function AuthLayout({ icon: Icon, title, subtitle, footer, childr
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-10">
-          <Link to="/landing" className="inline-flex items-center gap-2 mb-6">
-            <BookOpen className="w-6 h-6 text-primary" />
-            <span className="font-display font-bold text-xl">MyStudyApp</span>
-          </Link>
-          <div className="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-primary mb-4">
-            <Icon className="w-4 h-4 text-primary-foreground" aria-hidden="true" />
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <Link to="/landing" className="inline-flex items-center gap-2">
+              <BookOpen className="w-6 h-6 text-primary" />
+              <span className="font-display font-bold text-xl">MyStudyApp</span>
+            </Link>
+            <div className="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-primary">
+              <Icon className="w-4 h-4 text-primary-foreground" aria-hidden="true" />
+            </div>
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">{title}</h1>
           {subtitle && <p className="text-muted-foreground mt-2">{subtitle}</p>}
