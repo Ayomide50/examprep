@@ -35,27 +35,9 @@ export default function Register() {
     }, 1000);
   };
 
-  const handleRegister = async (e) => {
+  const handleRegister = (e) => {
     e.preventDefault();
-    if (password !== confirm) {
-      setError("Passwords do not match");
-      return;
-    }
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters");
-      return;
-    }
-    setLoading(true);
-    setError("");
-    try {
-      await base44.auth.register({ email, password });
-      setStep("otp");
-      startResendCooldown();
-    } catch (err) {
-      setError(err?.message || "Registration failed");
-    } finally {
-      setLoading(false);
-    }
+    toast({ title: "Sign-up is coming soon" });
   };
 
   const handleVerifyOtp = async (e) => {
