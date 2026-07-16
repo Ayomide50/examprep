@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Users, Search, CheckCircle, XCircle, Trash2, Loader2 } from "lucide-react";
+import { Users, Search, CheckCircle, XCircle, Trash2, Loader2, ShieldCheck } from "lucide-react";
+import { useAuth } from "@/lib/AuthContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,20 +20,33 @@ import moment from "moment";
 
 export default function AdminStudents() {
   const { toast } = useToast();
+  const { user: currentUser } = useAuth();
   const [students, setStudents] = useState([]);
+  const [adminUserIds, setAdminUserIds] = useState(new Set());
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
 
-  const loadStudents = () => {
-    base44.entities.StudentProfile.list("-created_date", 200).then((data) => {
-      setStudents(data);
+  const loadStudents = async () => {
+    try {
+      const [profiles, users] = await Promise.all([
+        base44.entities.StudentProfile.list("-created_date", 200),
+        base44.entities.User.list("-created_date", 200),
+      ]);
+      setStudents(profiles);
+      setAdminUserIds(new Set(users.filter((u) => u.role === "admin").map((u) => u.id)));
+    } catch (error) {
+      toast({ title: "Failed to load students", variant: "destructive" });
+    } finally {
       setLoading(false);
-    });
+    }
   };
 
   useEffect(() => { loadStudents(); }, []);
+
+  const isAdminUser = (s) => adminUserIds.has(s.user_id);
+  const isSelf = (s) => currentUser && s.user_id === currentUser.id;
 
   const handleDeleteStudent = async () => {
     if (!deleteTarget) return;
@@ -122,7 +136,11 @@ export default function AdminStudents() {
                     </div>
                   </td>
                   <td className="px-5 py-3">
-                    {s.is_activated ? (
+                    {isAdminUser(s) ? (
+                      <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">
+                        <ShieldCheck className="w-3 h-3" /> Admin
+                      </span>
+                    ) : s.is_activated ? (
                       <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 text-green-700">
                         <CheckCircle className="w-3 h-3" /> Active
                       </span>
@@ -139,13 +157,19 @@ export default function AdminStudents() {
                   <td className="px-5 py-3 text-muted-foreground hidden md:table-cell">{s.total_mock_exams || 0}</td>
                   <td className="px-5 py-3 text-muted-foreground">{moment(s.created_date).format("MMM D")}</td>
                   <td className="px-5 py-3">
-                    <button
-                      onClick={() => setDeleteTarget(s)}
-                      className="p-1.5 hover:bg-red-50 rounded-md"
-                      title="Delete student"
-                    >
-                      <Trash2 className="w-3.5 h-3.5 text-red-500" />
-                    </button>
+                    {isAdminUser(s) || isSelf(s) ? (
+                      <span className="text-xs text-muted-foreground" title={isSelf(s) ? "You cannot delete yourself" : "Admin users cannot be deleted"}>
+                        —
+                      </span>
+                    ) : (
+                      <button
+                        onClick={() => setDeleteTarget(s)}
+                        className="p-1.5 hover:bg-red-50 rounded-md"
+                        title="Delete student"
+                      >
+                        <Trash2 className="w-3.5 h-3.5 text-red-500" />
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
