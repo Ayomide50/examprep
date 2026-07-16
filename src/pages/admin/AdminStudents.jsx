@@ -101,9 +101,24 @@ export default function AdminStudents() {
               {filtered.map((s) => (
                 <tr key={s.id} className="border-b border-border/50 hover:bg-muted/30">
                   <td className="px-5 py-3">
-                    <div>
-                      <p className="font-medium">{s.full_name || "—"}</p>
-                      <p className="text-xs text-muted-foreground">{s.email}</p>
+                    <div className="flex items-center gap-3">
+                      {s.profile_image ? (
+                        <img
+                          src={s.profile_image}
+                          alt={s.full_name || "student"}
+                          className="w-9 h-9 rounded-full object-cover border border-border flex-shrink-0"
+                        />
+                      ) : (
+                        <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                          <span className="text-xs font-medium text-primary">
+                            {(s.full_name || s.email || "?").charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <p className="font-medium truncate">{s.full_name || "—"}</p>
+                        <p className="text-xs text-muted-foreground truncate">{s.email}</p>
+                      </div>
                     </div>
                   </td>
                   <td className="px-5 py-3">
