@@ -9,21 +9,34 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     Promise.all([
-      base44.entities.StudentProfile.list("-created_date", 50),
-      base44.entities.Course.list("-created_date", 50),
+      base44.entities.StudentProfile.list("-created_date", 1000),
+      base44.entities.Course.list("-created_date", 1000),
       base44.entities.Question.list("-created_date", 1000),
-      base44.entities.ActivationCode.list("-created_date", 50),
+      base44.entities.ActivationCode.list("-created_date", 1000),
     ]).then(([students, courses, questions, codes]) => {
-      setStats({
-        students: students.length,
-        courses: courses.length,
-        questions: questions.length,
-        codes: codes.length,
-        usedCodes: codes.filter((c) => c.status === "used").length,
-        activeStudents: students.filter((s) => s.is_activated).length,
-      });
-      setRecentCodes(codes.slice(0, 10));
-      setLoading(false);
+      let questionCount = questions.length;
+      const fetchRemaining = async (skip) => {
+        const batch = await base44.entities.Question.list("-created_date", 1000, skip);
+        questionCount += batch.length;
+        if (batch.length === 1000) {
+          await fetchRemaining(skip + 1000);
+        }
+      };
+      (async () => {
+        if (questions.length === 1000) {
+          await fetchRemaining(1000);
+        }
+        setStats({
+          students: students.length,
+          courses: courses.length,
+          questions: questionCount,
+          codes: codes.length,
+          usedCodes: codes.filter((c) => c.status === "used").length,
+          activeStudents: students.filter((s) => s.is_activated).length,
+        });
+        setRecentCodes(codes.slice(0, 10));
+        setLoading(false);
+      })();
     });
   }, []);
 
