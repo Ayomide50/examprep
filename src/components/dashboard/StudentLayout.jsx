@@ -40,7 +40,7 @@ export default function StudentLayout() {
       </div>
 
       {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-40 w-64 bg-card border-r border-border transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
+      <aside className={`fixed inset-y-0 left-0 z-40 w-64 bg-card border-r border-border ${sidebarOpen ? "block" : "hidden"} lg:block`}>
         <div className="flex flex-col h-full">
           <div className="hidden lg:flex items-center gap-2 p-6 border-b border-border">
             <BookOpen className="w-6 h-6 text-primary" />
