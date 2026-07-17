@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { BookOpen, LayoutDashboard, GraduationCap, FileText, Clock, KeyRound, LogOut, Menu, X, User, Pencil } from "lucide-react";
 import { base44 } from "@/api/base44Client";
-// import WhatsAppButton from "@/components/WhatsAppButton";
+import WhatsAppButton from "@/components/WhatsAppButton";
 import ThemeToggle from "@/components/ThemeToggle";
 
 const navItems = [
