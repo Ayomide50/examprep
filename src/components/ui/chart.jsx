@@ -38,7 +38,12 @@ const ChartContainer = React.forwardRef(({ id, className, children, config, ...p
         {...props}>
         <ChartStyle id={chartId} config={config} />
         <RechartsPrimitive.ResponsiveContainer>
-          {children}
+          {/* Clone children to inject isAnimationActive={false} — disables GPU-heavy chart animations */}
+          {React.Children.map(children, (child) =>
+            React.isValidElement(child)
+              ? React.cloneElement(child, { isAnimationActive: false })
+              : child
+          )}
         </RechartsPrimitive.ResponsiveContainer>
       </div>
     </ChartContext.Provider>)
