@@ -67,7 +67,7 @@ export default function FeaturesSection() {
           {features.map((feature) => (
             <StaggerItem key={feature.title}>
               <div className="bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-xl hover:border-primary/20 transition-all duration-300 group h-full">
-                <div className={`w-11 h-11 rounded-xl ${feature.iconBg} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                <div className={`w-11 h-11 rounded-xl ${feature.iconBg} flex items-center justify-center mb-4 md:group-hover:scale-110 md:transition-transform`}>
                   <feature.icon className={`w-5 h-5 ${feature.color.replace(" bg-", "").split(" ")[0]}`} />
                 </div>
                 <h3 className="font-heading font-semibold text-base mb-2">{feature.title}</h3>

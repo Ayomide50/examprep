@@ -15,7 +15,7 @@ export default function HeroSection() {
   return (
     <section className="relative overflow-hidden pt-28 pb-16 md:pt-44 md:pb-24">
       <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full bg-primary/5 blur-3xl" />
+      <div className="hidden md:block absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full bg-primary/5 blur-3xl" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6">
         {/* Hero Text */}
@@ -62,7 +62,7 @@ export default function HeroSection() {
           {stats.map((stat) => (
             <StaggerItem key={stat.label}>
               <div className="bg-white rounded-xl border border-gray-100 p-5 text-center hover:shadow-lg hover:border-primary/20 transition-all duration-300 group h-full">
-                <div className={`w-11 h-11 rounded-xl ${stat.color} flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform`}>
+                <div className={`w-11 h-11 rounded-xl ${stat.color} flex items-center justify-center mx-auto mb-3 md:group-hover:scale-110 md:transition-transform`}>
                   <stat.icon className="w-5 h-5" />
                 </div>
                 <p className="font-display text-2xl md:text-3xl font-bold text-gray-900">{stat.value}</p>

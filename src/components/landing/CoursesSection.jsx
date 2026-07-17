@@ -36,7 +36,7 @@ export default function CoursesSection() {
                 <h3 className="font-heading font-semibold text-sm">{course.title}</h3>
                 <div className="flex items-center gap-1 mt-3 text-xs text-muted-foreground group-hover:text-primary transition-colors">
                   <span>{course.questions} questions</span>
-                  <ArrowRight className="w-3 h-3 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                  <ArrowRight className="w-3 h-3 md:opacity-0 md:-translate-x-1 md:group-hover:opacity-100 md:group-hover:translate-x-0 md:transition-all" />
                 </div>
               </div>
             </StaggerItem>
