@@ -125,10 +125,17 @@ export default function AdminQuestions() {
 
       if (extracted.status === "success" && extracted.output) {
         const items = Array.isArray(extracted.output) ? extracted.output : [extracted.output];
+        // Normalize course codes for tolerant matching (case + whitespace insensitive)
+        const normalize = (s) => (s || "").trim().toUpperCase().replace(/\s+/g, " ");
+        const courseByNorm = {};
+        courses.forEach((c) => { courseByNorm[normalize(c.code)] = c; });
+
         let created = 0;
+        let skipped = 0;
+        const skippedCodes = [];
         const affectedCourses = new Set();
         for (const item of items) {
-          const course = courses.find((c) => c.code === item.course_code);
+          const course = courseByNorm[normalize(item.course_code)];
           if (course && item.question_text) {
             await base44.entities.Question.create({
               ...item,
@@ -140,11 +147,24 @@ export default function AdminQuestions() {
             });
             affectedCourses.add(course.id);
             created++;
+          } else {
+            skipped++;
+            if (item.course_code) skippedCodes.push(item.course_code);
           }
         }
         for (const cid of affectedCourses) await syncCourseCount(cid);
-        toast({ title: `${created} questions imported` });
-        load();
+        if (created > 0) {
+          toast({ title: `${created} questions imported` });
+          load();
+        } else {
+          toast({
+            title: "No questions imported",
+            description: skippedCodes.length
+              ? `Course codes not found: ${skippedCodes.slice(0, 5).join(", ")}. Make sure they match your course codes exactly.`
+              : "Make sure each row has a question_text and course_code.",
+            variant: "destructive",
+          });
+        }
       } else {
         toast({ title: "Import failed", description: extracted.details || "Could not parse file", variant: "destructive" });
       }
