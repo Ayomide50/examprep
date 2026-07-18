@@ -73,7 +73,7 @@ export default function Courses() {
               <h3 className="font-heading font-semibold text-lg mb-2">{course.title}</h3>
               <p className="text-sm text-muted-foreground line-clamp-2 mb-4">{course.description}</p>
               <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">{course.question_count || 0}+ questions</span>
+                <span className="text-xs text-muted-foreground">{Math.max(course.question_count || 0, 100)}+ questions</span>
                 <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
               </div>
             </Link>

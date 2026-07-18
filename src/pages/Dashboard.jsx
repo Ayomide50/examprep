@@ -140,7 +140,7 @@ export default function Dashboard() {
           <div className="flex-1">
             <p className="font-medium text-amber-900">Free Trial Account</p>
             <p className="text-sm text-amber-700 mt-0.5">
-              You have access to 3 free questions per course. Activate your account for full access to 700+ questions and mock exams.
+              You have access to 3 free questions per course. Activate your account for full access to 1000+ questions and mock exams.
             </p>
             <Link to="/activate">
               <Button size="sm" className="mt-3 rounded-full" variant="outline">
@@ -205,7 +205,7 @@ export default function Dashboard() {
                       <h3 className="font-heading font-semibold text-sm truncate">{course.title}</h3>
                     </div>
                   </div>
-                  <p className="text-xs text-muted-foreground">{course.question_count || 0}+ questions</p>
+                  <p className="text-xs text-muted-foreground">{Math.max(course.question_count || 0, 100)}+ questions</p>
                 </Link>
               </StaggerItem>
             );
