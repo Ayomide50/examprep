@@ -28,6 +28,12 @@ export default function AdminQuestions() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
 
+  const syncCourseCount = async (courseId) => {
+    if (!courseId) return;
+    const courseQuestions = await base44.entities.Question.filter({ course_id: courseId, is_active: true }, null, 1000);
+    await base44.entities.Course.update(courseId, { question_count: courseQuestions.length });
+  };
+
   const load = async () => {
     const [q, c] = await Promise.all([
       base44.entities.Question.list("-created_date", 200),
@@ -41,16 +47,27 @@ export default function AdminQuestions() {
   useEffect(() => { load(); }, []);
 
   const handleSave = async () => {
-    if (!form.question_text || !form.course_id || !form.option_a) return;
+    if (!form.question_text || !form.course_id || !form.option_a) {
+      toast({ title: "Missing fields", description: "Question text, course, and option A are required", variant: "destructive" });
+      return;
+    }
     setSaving(true);
     const course = courses.find((c) => c.id === form.course_id);
     const data = { ...form, course_code: course?.code || "" };
-    if (editing) {
-      await base44.entities.Question.update(editing.id, data);
-      toast({ title: "Question updated" });
-    } else {
-      await base44.entities.Question.create(data);
-      toast({ title: "Question created" });
+    try {
+      if (editing) {
+        const oldCourseId = editing.course_id;
+        await base44.entities.Question.update(editing.id, data);
+        toast({ title: "Question updated" });
+        await syncCourseCount(form.course_id);
+        if (oldCourseId && oldCourseId !== form.course_id) await syncCourseCount(oldCourseId);
+      } else {
+        await base44.entities.Question.create(data);
+        toast({ title: "Question created" });
+        await syncCourseCount(form.course_id);
+      }
+    } catch (err) {
+      toast({ title: "Error saving question", description: err.message || "Please try again", variant: "destructive" });
     }
     setSaving(false);
     setShowForm(false);
@@ -71,8 +88,10 @@ export default function AdminQuestions() {
   };
 
   const handleDelete = async (id) => {
+    const question = questions.find((q) => q.id === id);
     await base44.entities.Question.delete(id);
     toast({ title: "Question deleted" });
+    if (question?.course_id) await syncCourseCount(question.course_id);
     load();
   };
 
@@ -107,6 +126,7 @@ export default function AdminQuestions() {
       if (extracted.status === "success" && extracted.output) {
         const items = Array.isArray(extracted.output) ? extracted.output : [extracted.output];
         let created = 0;
+        const affectedCourses = new Set();
         for (const item of items) {
           const course = courses.find((c) => c.code === item.course_code);
           if (course && item.question_text) {
@@ -118,9 +138,11 @@ export default function AdminQuestions() {
               is_active: true,
               is_free_trial: false,
             });
+            affectedCourses.add(course.id);
             created++;
           }
         }
+        for (const cid of affectedCourses) await syncCourseCount(cid);
         toast({ title: `${created} questions imported` });
         load();
       } else {
