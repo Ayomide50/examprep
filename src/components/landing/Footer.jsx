@@ -33,7 +33,7 @@ export default function Footer() {
               <span className="font-display font-bold text-lg">MyStudyApp</span>
             </div>
             <p className="text-sm text-gray-400 leading-relaxed mb-5 max-w-xs">
-              Nigeria's premier CBT exam preparation platform. Practice 700+ questions across 7 courses with expert explanations. MyStudyApp helps you pass with confidence.
+              Nigeria's premier CBT exam preparation platform. Practice 1000+ questions across 10 courses with expert explanations. MyStudyApp helps you pass with confidence.
             </p>
             <a
               href={waLink}
