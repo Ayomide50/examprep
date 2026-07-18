@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { BookOpen, Calculator, Briefcase, TrendingUp, BarChart3, Users, Megaphone, Settings, ArrowRight, Search } from "lucide-react";
+import { BookOpen, Calculator, Briefcase, TrendingUp, BarChart3, Users, Megaphone, Settings, Landmark, Laptop, Scale, Brain, Lightbulb, Store, ArrowRight, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 const iconMap = {
@@ -12,6 +12,12 @@ const iconMap = {
   users: Users,
   megaphone: Megaphone,
   settings: Settings,
+  landmark: Landmark,
+  laptop: Laptop,
+  scale: Scale,
+  brain: Brain,
+  lightbulb: Lightbulb,
+  store: Store,
 };
 
 export default function Courses() {

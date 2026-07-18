@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
 import { FadeIn, StaggerGroup, StaggerItem } from "@/components/ui/FadeIn";
-import { BookOpen, Target, Trophy, Clock, ArrowRight, AlertCircle, CheckCircle, Calculator, Briefcase, TrendingUp, BarChart3, Users, Megaphone, Settings, Trash2, Loader2 } from "lucide-react";
+import { BookOpen, Target, Trophy, Clock, ArrowRight, AlertCircle, CheckCircle, Calculator, Briefcase, TrendingUp, BarChart3, Users, Megaphone, Settings, Landmark, Laptop, Scale, Brain, Lightbulb, Store, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/components/ui/use-toast";
@@ -27,6 +27,12 @@ const iconMap = {
   users: Users,
   megaphone: Megaphone,
   settings: Settings,
+  landmark: Landmark,
+  laptop: Laptop,
+  scale: Scale,
+  brain: Brain,
+  lightbulb: Lightbulb,
+  store: Store,
 };
 
 export default function Dashboard() {
