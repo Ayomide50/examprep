@@ -1,5 +1,5 @@
 import React from "react";
-import { Calculator, Briefcase, TrendingUp, BarChart3, Users, Megaphone, Settings, ArrowRight } from "lucide-react";
+import { Calculator, Briefcase, TrendingUp, BarChart3, Users, Megaphone, Settings, Landmark, Brain, Lightbulb, ArrowRight } from "lucide-react";
 import { FadeIn, StaggerGroup, StaggerItem } from "@/components/ui/FadeIn";
 
 const courses = [
@@ -10,6 +10,9 @@ const courses = [
   { code: "IRP 120", title: "Human Resources", icon: Users, questions: "100+" },
   { code: "BUS 121", title: "Marketing", icon: Megaphone, questions: "100+" },
   { code: "BUS 120", title: "Management", icon: Settings, questions: "100+" },
+  { code: "POL 111", title: "Political Science", icon: Landmark, questions: "100+" },
+  { code: "PSY 111", title: "Psychology", icon: Brain, questions: "100+" },
+  { code: "GST 102", title: "Philosophy & Logic", icon: Lightbulb, questions: "100+" },
 ];
 
 export default function CoursesSection() {
@@ -18,7 +21,7 @@ export default function CoursesSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <FadeIn className="text-center mb-14">
           <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight mb-3">
-            Seven Courses, One Platform
+            Ten Courses, One Platform
           </h2>
           <p className="text-muted-foreground text-lg max-w-xl mx-auto">
             Comprehensive question banks covering all major subjects with detailed explanations for every answer.

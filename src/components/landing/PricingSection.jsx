@@ -6,7 +6,7 @@ import { FadeIn } from "@/components/ui/FadeIn";
 
 const features = [
   "Full access to all available courses",
-  "Access to 700+ CBT practice questions",
+  "Access to 1000+ CBT practice questions",
   "Detailed explanations for every question",
   "Realistic Mock CBT examinations",
   "Performance tracking & analytics",

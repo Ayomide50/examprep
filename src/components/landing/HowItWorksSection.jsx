@@ -41,7 +41,7 @@ const steps = [
   {
     icon: Unlock,
     title: "Unlock Full Access",
-    description: "Enter your activation code in the platform to unlock full access to all 700+ questions.",
+    description: "Enter your activation code in the platform to unlock full access to all 1000+ questions.",
     color: "text-indigo-600 bg-indigo-50",
     iconBg: "bg-indigo-100",
   },
