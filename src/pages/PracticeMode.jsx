@@ -29,6 +29,7 @@ export default function PracticeMode() {
   const [bookmarkedIds, setBookmarkedIds] = useState(new Set());
   const [trialBlocked, setTrialBlocked] = useState(false);
   const [questionsAnswered, setQuestionsAnswered] = useState(0);
+  const [history, setHistory] = useState({});
 
   useEffect(() => {
     Promise.all([
@@ -74,6 +75,7 @@ export default function PracticeMode() {
     setSessionAnswered(0);
     setSessionCorrect(0);
     setSessionComplete(false);
+    setHistory({});
   };
 
   const handleTopicChange = (value) => {
@@ -166,23 +168,52 @@ export default function PracticeMode() {
   };
 
   const handleNext = async () => {
-    const { answered, correct, hitTrialLimit } = await saveCurrentAnswer();
+    const alreadyAnswered = history[currentIndex] !== undefined;
+    let answered = sessionAnswered;
+    let correct = sessionCorrect;
+    let hitTrialLimit = false;
+
+    if (!alreadyAnswered) {
+      const res = await saveCurrentAnswer();
+      answered = res.answered;
+      correct = res.correct;
+      hitTrialLimit = res.hitTrialLimit;
+      if (selectedAnswer) {
+        setHistory((prev) => ({ ...prev, [currentIndex]: selectedAnswer }));
+      }
+    }
+
     if (hitTrialLimit) {
       await finishSession(answered, correct);
       return;
     }
     if (currentIndex < questions.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-      setSelectedAnswer(null);
-      setShowAnswer(false);
+      const nextIndex = currentIndex + 1;
+      const prevAns = history[nextIndex];
+      setCurrentIndex(nextIndex);
+      setSelectedAnswer(prevAns ?? null);
+      setShowAnswer(prevAns !== undefined);
     } else {
       await finishSession(answered, correct);
     }
   };
 
+  const handlePrev = () => {
+    if (currentIndex === 0) return;
+    const prevIndex = currentIndex - 1;
+    const prevAns = history[prevIndex];
+    setCurrentIndex(prevIndex);
+    setSelectedAnswer(prevAns ?? null);
+    setShowAnswer(prevAns !== undefined);
+  };
+
   const handleStop = async () => {
     if (sessionAnswered === 0 && !selectedAnswer) {
       navigate("/dashboard");
+      return;
+    }
+    if (history[currentIndex] !== undefined) {
+      await finishSession(sessionAnswered, sessionCorrect);
       return;
     }
     const { answered, correct } = await saveCurrentAnswer();
@@ -457,6 +488,11 @@ export default function PracticeMode() {
           <Button variant="outline" className="rounded-full gap-2 text-destructive hover:text-destructive" onClick={handleStop}>
             <Square className="w-4 h-4 fill-current" /> Stop
           </Button>
+          {currentIndex > 0 && (
+            <Button variant="outline" className="rounded-full gap-2" onClick={handlePrev}>
+              <ArrowLeft className="w-4 h-4" /> Previous
+            </Button>
+          )}
           {!showAnswer && (
             <Button variant="outline" className="rounded-full gap-2" onClick={() => setShowAnswer(true)}>
               <Eye className="w-4 h-4" /> Show Answer
