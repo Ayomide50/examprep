@@ -12,6 +12,10 @@
     "full_name": {
       "type": "string"
     },
+    "referral_code": {
+      "type": "string",
+      "description": "Optional referral code entered at registration"
+    },
     "profile_image": {
       "type": "string",
       "description": "URL of uploaded profile image"

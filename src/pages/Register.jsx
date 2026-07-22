@@ -4,10 +4,12 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Mail, Lock, UserPlus, Loader2, ArrowLeft, KeyRound, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, UserPlus, Loader2, ArrowLeft, KeyRound, Eye, EyeOff, User, Gift } from "lucide-react";
 import AuthLayout from "@/components/AuthLayout";
 
 export default function Register() {
+  const [fullName, setFullName] = useState("");
+  const [referralCode, setReferralCode] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -63,6 +65,26 @@ export default function Register() {
     try {
       const res = await base44.auth.verifyOtp({ email, otpCode: otp });
       base44.auth.setToken(res.access_token);
+      try {
+        const me = await base44.auth.me();
+        const existing = await base44.entities.StudentProfile.filter({ user_id: me.id });
+        if (existing.length === 0) {
+          await base44.entities.StudentProfile.create({
+            user_id: me.id,
+            email: me.email,
+            full_name: fullName.trim(),
+            referral_code: referralCode.trim(),
+            is_activated: false,
+            free_trial_used: {},
+            total_questions_answered: 0,
+            total_correct: 0,
+            total_practice_sessions: 0,
+            total_mock_exams: 0,
+          });
+        }
+      } catch (_) {
+        // Profile will be auto-created on first dashboard load if this fails
+      }
       window.location.href = "/";
     } catch (err) {
       setError(err?.message || "Invalid or expired code");
@@ -156,6 +178,23 @@ export default function Register() {
     >
       <form onSubmit={handleRegister} className="space-y-4">
         <div className="space-y-2">
+          <Label htmlFor="fullName">Name</Label>
+          <div className="relative">
+            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
+            <Input
+              id="fullName"
+              type="text"
+              autoComplete="name"
+              autoFocus
+              placeholder="Enter your full name"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              className="pl-10 h-12"
+              required
+            />
+          </div>
+        </div>
+        <div className="space-y-2">
           <Label htmlFor="email">Email address</Label>
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
@@ -163,7 +202,6 @@ export default function Register() {
               id="email"
               type="email"
               autoComplete="email"
-              autoFocus
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -218,6 +256,21 @@ export default function Register() {
             >
               {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="referralCode">Referral Code (Optional)</Label>
+          <div className="relative">
+            <Gift className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
+            <Input
+              id="referralCode"
+              type="text"
+              placeholder="Enter referral code if you have one"
+              value={referralCode}
+              onChange={(e) => setReferralCode(e.target.value)}
+              className="pl-10 h-12"
+            />
           </div>
         </div>
 
