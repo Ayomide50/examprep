@@ -33,7 +33,11 @@ export default function AdminAdmins() {
       const allUsers = await base44.entities.User.list();
       setUsers(allUsers);
     } catch {
-      toast({ variant: "destructive", title: "Error", description: "Failed to load users" });
+      toast({
+        variant: "destructive",
+        title: "Failed to load users",
+        description: "Your session may not have admin access. Log out and log back in with your admin account, then try again.",
+      });
     } finally {
       setLoading(false);
     }

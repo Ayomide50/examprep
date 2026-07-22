@@ -37,7 +37,11 @@ export default function AdminStudents() {
       setStudents(profiles);
       setAdminUserIds(new Set(users.filter((u) => u.role === "admin").map((u) => u.id)));
     } catch (error) {
-      toast({ title: "Failed to load students", variant: "destructive" });
+      toast({
+        title: "Failed to load students",
+        description: "Your session may not have admin access. Log out and log back in with your admin account, then try again.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
