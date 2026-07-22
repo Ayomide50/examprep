@@ -16,6 +16,10 @@
       "type": "string",
       "description": "Optional referral code entered at registration"
     },
+    "my_referral_code": {
+      "type": "string",
+      "description": "This student's own unique referral code to share"
+    },
     "profile_image": {
       "type": "string",
       "description": "URL of uploaded profile image"

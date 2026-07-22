@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
-import { BookOpen, LayoutDashboard, GraduationCap, FileText, Clock, KeyRound, LogOut, Menu, X, User, Pencil } from "lucide-react";
+import { BookOpen, LayoutDashboard, GraduationCap, FileText, Clock, KeyRound, LogOut, Menu, X, User, Pencil, Gift } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -11,6 +11,7 @@ const navItems = [
   { path: "/courses", icon: Pencil, label: "Practice", match: (p) => p.startsWith("/practice") },
   { path: "/mock-exams", icon: FileText, label: "Mock Exams", match: (p) => p.startsWith("/mock-exam") },
   { path: "/history", icon: Clock, label: "History", match: (p) => p === "/history" },
+  { path: "/referrals", icon: Gift, label: "Refer & Earn", match: (p) => p === "/referrals" },
   { path: "/activate", icon: KeyRound, label: "Activate", match: (p) => p === "/activate" },
   { path: "/profile", icon: User, label: "Profile", match: (p) => p === "/profile" },
 ];

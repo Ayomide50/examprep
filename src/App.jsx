@@ -30,6 +30,7 @@ import MockExam from "@/pages/MockExam";
 import MockExamResult from "@/pages/MockExamResult";
 import History from "@/pages/History";
 import Activate from "@/pages/Activate";
+import Referrals from "@/pages/Referrals";
 import Profile from "@/pages/Profile";
 
 // Layouts
@@ -78,6 +79,7 @@ const AuthenticatedApp = () => {
           <Route path="/mock-exam/:courseId" element={<MockExam />} />
           <Route path="/mock-exam-result/:resultId" element={<MockExamResult />} />
           <Route path="/history" element={<History />} />
+          <Route path="/referrals" element={<Referrals />} />
           <Route path="/activate" element={<Activate />} />
           <Route path="/profile" element={<Profile />} />
         </Route>

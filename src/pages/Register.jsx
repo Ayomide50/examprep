@@ -9,7 +9,9 @@ import AuthLayout from "@/components/AuthLayout";
 
 export default function Register() {
   const [fullName, setFullName] = useState("");
-  const [referralCode, setReferralCode] = useState("");
+  const [referralCode, setReferralCode] = useState(
+    () => new URLSearchParams(window.location.search).get("ref") || ""
+  );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -81,6 +83,21 @@ export default function Register() {
             total_practice_sessions: 0,
             total_mock_exams: 0,
           });
+        }
+        const codeEntered = referralCode.trim().toUpperCase();
+        if (codeEntered) {
+          const referrers = await base44.entities.StudentProfile.filter({ my_referral_code: codeEntered });
+          if (referrers.length > 0 && referrers[0].user_id !== me.id) {
+            await base44.entities.Referral.create({
+              referrer_user_id: referrers[0].user_id,
+              referrer_code: codeEntered,
+              referred_user_id: me.id,
+              referred_email: me.email,
+              referred_name: fullName.trim(),
+              status: "pending",
+              reward_amount: 500,
+            });
+          }
         }
       } catch (_) {
         // Profile will be auto-created on first dashboard load if this fails

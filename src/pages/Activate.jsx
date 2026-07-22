@@ -64,6 +64,19 @@ export default function Activate() {
         activation_date: new Date().toISOString(),
       });
 
+      // Credit the referrer if this student signed up with a referral code
+      try {
+        const referrals = await base44.entities.Referral.filter({ referred_user_id: user.id, status: "pending" });
+        if (referrals.length > 0) {
+          await base44.entities.Referral.update(referrals[0].id, {
+            status: "paid",
+            paid_date: new Date().toISOString(),
+          });
+        }
+      } catch (_) {
+        // Referral crediting must not block activation
+      }
+
       toast({ title: "Account Activated!", description: "You now have full access to all courses and features." });
       navigate("/dashboard");
     } catch (err) {
