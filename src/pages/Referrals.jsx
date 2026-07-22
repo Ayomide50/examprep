@@ -1,25 +1,31 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
-import { generateReferralCode, REWARD_PER_REFERRAL } from "@/lib/referral";
+import { generateReferralCode, REWARD_PER_REFERRAL, MIN_WITHDRAWAL } from "@/lib/referral";
 import BalanceCard from "@/components/referrals/BalanceCard";
 import ReferralCodeCard from "@/components/referrals/ReferralCodeCard";
 import ReferralStats from "@/components/referrals/ReferralStats";
 import HowItWorksCard from "@/components/referrals/HowItWorksCard";
-import WithdrawDialog from "@/components/referrals/WithdrawDialog";
+import WithdrawalHistory from "@/components/referrals/WithdrawalHistory";
+import NotEligibleDialog from "@/components/referrals/NotEligibleDialog";
+import WithdrawReceiptDialog from "@/components/referrals/WithdrawReceiptDialog";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function Referrals() {
   const { profile, user, loading: profileLoading, refresh } = useStudentProfile();
+  const { toast } = useToast();
   const [referrals, setReferrals] = useState([]);
   const [withdrawals, setWithdrawals] = useState([]);
   const [loadingData, setLoadingData] = useState(true);
-  const [withdrawOpen, setWithdrawOpen] = useState(false);
+  const [notEligibleOpen, setNotEligibleOpen] = useState(false);
+  const [receipt, setReceipt] = useState(null);
+  const [requesting, setRequesting] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!user) return;
     const [refs, wds] = await Promise.all([
       base44.entities.Referral.filter({ referrer_user_id: user.id }),
-      base44.entities.WithdrawalRequest.filter({ user_id: user.id }),
+      base44.entities.WithdrawalRequest.filter({ user_id: user.id }, "-created_date"),
     ]);
     setReferrals(refs);
     setWithdrawals(wds);
@@ -55,6 +61,36 @@ export default function Referrals() {
     .filter((w) => w.status !== "rejected")
     .reduce((sum, w) => sum + (w.amount || 0), 0);
   const balance = Math.max(0, totalRewards - withdrawn);
+  const hasPendingWithdrawal = withdrawals.some((w) => w.status === "pending");
+
+  const handleWithdraw = async () => {
+    if (requesting) return;
+    if (hasPendingWithdrawal) {
+      toast({ title: "Withdrawal already pending", description: "Please wait for the admin to process your current request." });
+      return;
+    }
+    if (balance < MIN_WITHDRAWAL) {
+      setNotEligibleOpen(true);
+      return;
+    }
+    setRequesting(true);
+    try {
+      const req = await base44.entities.WithdrawalRequest.create({
+        user_id: user.id,
+        email: user.email,
+        full_name: profile.full_name || user.full_name || "",
+        referral_code: profile.my_referral_code,
+        amount: balance,
+        status: "pending",
+      });
+      setReceipt(req);
+      loadData();
+    } catch (err) {
+      toast({ title: "Failed to submit withdrawal request", variant: "destructive" });
+    } finally {
+      setRequesting(false);
+    }
+  };
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -63,7 +99,7 @@ export default function Referrals() {
         <p className="text-muted-foreground mt-1">Invite friends and earn ₦{REWARD_PER_REFERRAL} for each one that activates</p>
       </div>
 
-      <BalanceCard balance={balance} onWithdraw={() => setWithdrawOpen(true)} />
+      <BalanceCard balance={balance} onWithdraw={handleWithdraw} />
       <ReferralCodeCard code={profile.my_referral_code} />
       <ReferralStats
         total={referrals.length}
@@ -71,6 +107,7 @@ export default function Referrals() {
         pending={pendingReferrals.length}
         totalRewards={totalRewards}
       />
+      <WithdrawalHistory withdrawals={withdrawals} />
       <HowItWorksCard />
 
       {referrals.length > 0 && (
@@ -98,13 +135,11 @@ export default function Referrals() {
         </div>
       )}
 
-      <WithdrawDialog
-        open={withdrawOpen}
-        onOpenChange={setWithdrawOpen}
-        balance={balance}
-        user={user}
-        profile={profile}
-        onSubmitted={loadData}
+      <NotEligibleDialog open={notEligibleOpen} onOpenChange={setNotEligibleOpen} />
+      <WithdrawReceiptDialog
+        open={!!receipt}
+        onOpenChange={(open) => !open && setReceipt(null)}
+        request={receipt}
       />
     </div>
   );

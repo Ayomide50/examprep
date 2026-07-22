@@ -11,6 +11,10 @@
     "full_name": {
       "type": "string"
     },
+    "referral_code": {
+      "type": "string",
+      "description": "The student's own referral code"
+    },
     "amount": {
       "type": "number"
     },
@@ -31,13 +35,15 @@
         "rejected"
       ],
       "default": "pending"
+    },
+    "paid_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the admin marked this request as paid"
     }
   },
   "required": [
     "user_id",
-    "amount",
-    "bank_name",
-    "account_number",
-    "account_name"
+    "amount"
   ]
 }

@@ -1,5 +1,5 @@
 export const REWARD_PER_REFERRAL = 500;
-export const MIN_WITHDRAWAL = 1000;
+export const MIN_WITHDRAWAL = 500;
 
 export function generateReferralCode(name = "") {
   const prefix = (name.replace(/[^a-zA-Z]/g, "").slice(0, 3) || "REF").toUpperCase();

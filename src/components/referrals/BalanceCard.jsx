@@ -16,9 +16,7 @@ export default function BalanceCard({ balance, onWithdraw }) {
             <p className="font-display text-3xl font-bold">{formatNaira(balance)}</p>
           </div>
         </div>
-        {balance >= MIN_WITHDRAWAL && (
-          <Button onClick={onWithdraw} className="rounded-full">Withdraw</Button>
-        )}
+        <Button onClick={onWithdraw} className="rounded-full">Withdraw</Button>
       </div>
       <div className="flex items-start gap-2 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 text-amber-800 dark:text-amber-300 text-sm rounded-lg px-3 py-2.5">
         <Info className="w-4 h-4 shrink-0 mt-0.5" />
