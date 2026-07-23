@@ -20,7 +20,7 @@ export default function BalanceCard({ balance, onWithdraw }) {
       </div>
       <div className="flex items-start gap-2 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 text-amber-800 dark:text-amber-300 text-sm rounded-lg px-3 py-2.5">
         <Info className="w-4 h-4 shrink-0 mt-0.5" />
-        <span>Minimum withdrawal amount is {formatNaira(MIN_WITHDRAWAL)}. Refer more friends to increase your balance!</span>
+        <span>Minimum withdrawal amount is {formatNaira(MIN_WITHDRAWAL)}. Refer more users to increase your balance!</span>
       </div>
     </div>
   );
