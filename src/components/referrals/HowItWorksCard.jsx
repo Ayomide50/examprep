@@ -2,7 +2,7 @@ import React from "react";
 import { REWARD_PER_REFERRAL, MIN_WITHDRAWAL, formatNaira } from "@/lib/referral";
 
 const steps = [
-  { title: "Share your referral code", desc: "Share your unique referral code or link with friends and family" },
+  { title: "Share your referral code", desc: "Share your unique referral code or link with your course mate"},
   { title: "They sign up using your code", desc: "When they register with your referral code, they become your referral" },
   { title: `Earn ${formatNaira(REWARD_PER_REFERRAL)} per referral`, desc: `You earn ${formatNaira(REWARD_PER_REFERRAL)} when they activate their account` },
   { title: "Withdraw to your bank", desc: `Submit your bank details once you reach ${formatNaira(MIN_WITHDRAWAL)}` },
