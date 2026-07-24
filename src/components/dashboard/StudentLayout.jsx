@@ -27,6 +27,32 @@ export default function StudentLayout() {
     base44.auth.logout("/");
   };
 
+  // Full-screen setup — no sidebar until department & level are chosen
+  if (!profileLoading && profile && !profile.department_id) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="h-14 border-b border-border bg-card flex items-center justify-between px-4 md:px-8">
+          <div className="flex items-center gap-2">
+            <BookOpen className="w-5 h-5 text-primary" />
+            <span className="font-display font-bold">MyStudyApp</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <ThemeToggle />
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground px-3 py-2"
+            >
+              <LogOut className="w-4 h-4" /> Sign Out
+            </button>
+          </div>
+        </div>
+        <div className="p-4 md:p-8">
+          <DepartmentSetup profile={profile} onDone={refresh} />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Mobile header */}
@@ -100,8 +126,6 @@ export default function StudentLayout() {
             <div className="flex items-center justify-center min-h-[60vh]">
               <div className="w-8 h-8 border-4 border-muted border-t-primary rounded-full animate-spin" />
             </div>
-          ) : profile && !profile.department_id ? (
-            <DepartmentSetup profile={profile} onDone={refresh} />
           ) : (
             <Outlet />
           )}
