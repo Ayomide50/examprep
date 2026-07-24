@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { FadeInLoad, StaggerGroup, StaggerItem } from "@/components/ui/FadeIn";
 
 const stats = [
-  { value: "1000+", label: "Practice Questions", sub: "Across all 10 courses", icon: FileText, color: "text-blue-600 bg-blue-50" },
-  { value: "10", label: "Courses Available", icon: BookOpen, color: "text-purple-600 bg-purple-50" },
+  { value: "7000+", label: "Practice Questions", sub: "Across all 10 courses", icon: FileText, color: "text-blue-600 bg-blue-50" },
+  { value: "25+", label: "Courses Available", icon: BookOpen, color: "text-purple-600 bg-purple-50" },
   { value: "100%", label: "Explanations", sub: "Every single question", icon: CheckCircle, color: "text-emerald-600 bg-emerald-50" },
   { value: "500+", label: "Students", sub: "And growing daily", icon: Users, color: "text-amber-600 bg-amber-50" },
 ];
