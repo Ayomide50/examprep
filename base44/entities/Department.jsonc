@@ -1,0 +1,27 @@
+{
+  "name": "Department",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Department name e.g. Business Administration"
+    },
+    "description": {
+      "type": "string"
+    },
+    "levels": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Available levels for this department e.g. [\"100\", \"200\", \"300\", \"400\"]"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

@@ -18,6 +18,17 @@
       "type": "string",
       "description": "Icon name for the course"
     },
+    "department_id": {
+      "type": "string",
+      "description": "Department this course belongs to"
+    },
+    "department_name": {
+      "type": "string"
+    },
+    "level": {
+      "type": "string",
+      "description": "Academic level e.g. 100, 200"
+    },
     "is_active": {
       "type": "boolean",
       "default": true

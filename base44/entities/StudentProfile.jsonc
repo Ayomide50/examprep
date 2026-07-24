@@ -12,6 +12,17 @@
     "full_name": {
       "type": "string"
     },
+    "department_id": {
+      "type": "string",
+      "description": "Department assigned to this student"
+    },
+    "department_name": {
+      "type": "string"
+    },
+    "level": {
+      "type": "string",
+      "description": "Academic level assigned e.g. 100"
+    },
     "referral_code": {
       "type": "string",
       "description": "Optional referral code entered at registration"
