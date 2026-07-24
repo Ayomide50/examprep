@@ -43,11 +43,19 @@ export default function AdminQuestions() {
   };
 
   const load = async () => {
-    const [q, c, d] = await Promise.all([
-      base44.entities.Question.list("-created_date", 200),
+    const [c, d] = await Promise.all([
       base44.entities.Course.list("-created_date", 200),
       base44.entities.Department.list("-created_date", 100),
     ]);
+    // Load ALL questions in batches so counts are accurate
+    let q = [];
+    let skip = 0;
+    while (true) {
+      const batch = await base44.entities.Question.list("-created_date", 1000, skip);
+      q = q.concat(batch);
+      if (batch.length < 1000) break;
+      skip += 1000;
+    }
     setQuestions(q);
     setCourses(c);
     setDepartments(d);

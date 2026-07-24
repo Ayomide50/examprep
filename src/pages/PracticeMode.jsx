@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
 import { FREE_TRIAL_LIMIT, getWhatsAppLink, shuffleArray } from "@/lib/constants";
-import { courseMatchesProfile, formatLevel } from "@/lib/access";
+import { courseMatchesProfile } from "@/lib/access";
 import { ArrowLeft, ArrowRight, RotateCcw, MessageCircle, Lock, BookOpen, Bookmark, Trophy, Home, Eye, CheckCircle, XCircle, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -49,15 +49,22 @@ export default function PracticeMode() {
     });
   }, [courseId, user]);
 
+  // Full access only for activated accounts on their OWN department & level.
+  // Any other department/level is free-trial only.
+  const fullAccess = !!(profile?.is_activated && course && courseMatchesProfile(course, profile));
+
   useEffect(() => {
-    if (!profileLoading && profile && !profile.is_activated) {
-      const used = profile.free_trial_used?.[courseId] || 0;
-      if (used >= FREE_TRIAL_LIMIT) {
-        setTrialBlocked(true);
+    if (!profileLoading && profile && course) {
+      const hasFull = profile.is_activated && courseMatchesProfile(course, profile);
+      if (!hasFull) {
+        const used = profile.free_trial_used?.[courseId] || 0;
+        if (used >= FREE_TRIAL_LIMIT) {
+          setTrialBlocked(true);
+        }
+        setQuestionsAnswered(used);
       }
-      setQuestionsAnswered(used);
     }
-  }, [profileLoading, profile, courseId]);
+  }, [profileLoading, profile, course, courseId]);
 
   const shuffleAndFilter = (topicId, count, pool) => {
     const source = pool || allQuestions;
@@ -119,7 +126,7 @@ export default function PracticeMode() {
         total_questions_answered: (profile.total_questions_answered || 0) + newAnswered,
         total_correct: (profile.total_correct || 0) + newCorrect,
       };
-      if (!profile.is_activated) {
+      if (!fullAccess) {
         const freeUsed = { ...(profile.free_trial_used || {}) };
         freeUsed[courseId] = (freeUsed[courseId] || 0) + 1;
         updateData.free_trial_used = freeUsed;
@@ -266,19 +273,6 @@ export default function PracticeMode() {
     );
   }
 
-  if (course && !courseMatchesProfile(course, profile)) {
-    return (
-      <div className="max-w-lg mx-auto text-center py-16">
-        <Lock className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-        <h2 className="font-display text-xl font-bold mb-2">Access Restricted</h2>
-        <p className="text-muted-foreground mb-6">
-          This course is not available for your account. You can only access {profile?.department_name} • {formatLevel(profile?.level)} courses.
-        </p>
-        <Button variant="outline" onClick={() => navigate("/courses")}>Back to Courses</Button>
-      </div>
-    );
-  }
-
   if (questions.length === 0) {
     return (
       <div className="max-w-3xl mx-auto text-center py-16">
@@ -376,7 +370,7 @@ export default function PracticeMode() {
             <span className="text-green-600 font-medium">{sessionCorrect}</span> correct •{" "}
             <span className="text-red-500 font-medium">{sessionAnswered - sessionCorrect}</span> wrong
           </span>
-          {!profile?.is_activated && (
+          {!fullAccess && (
             <span className="text-xs text-amber-600">({questionsAnswered}/{FREE_TRIAL_LIMIT} free)</span>
           )}
         </div>

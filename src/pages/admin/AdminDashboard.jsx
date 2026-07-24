@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Users, BookOpen, KeyRound, HelpCircle, CheckCircle, XCircle } from "lucide-react";
+import { Users, BookOpen, KeyRound, HelpCircle, CheckCircle, XCircle, Building2 } from "lucide-react";
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState({ students: 0, courses: 0, questions: 0, codes: 0, usedCodes: 0, activeStudents: 0 });
+  const [stats, setStats] = useState({ students: 0, courses: 0, questions: 0, codes: 0, usedCodes: 0, activeStudents: 0, departments: 0 });
   const [recentCodes, setRecentCodes] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -13,7 +13,8 @@ export default function AdminDashboard() {
       base44.entities.Course.list("-created_date", 1000),
       base44.entities.Question.list("-created_date", 1000),
       base44.entities.ActivationCode.list("-created_date", 1000),
-    ]).then(([students, courses, questions, codes]) => {
+      base44.entities.Department.list("-created_date", 500),
+    ]).then(([students, courses, questions, codes, departments]) => {
       let questionCount = questions.length;
       const fetchRemaining = async (skip) => {
         const batch = await base44.entities.Question.list("-created_date", 1000, skip);
@@ -33,6 +34,7 @@ export default function AdminDashboard() {
           codes: codes.length,
           usedCodes: codes.filter((c) => c.status === "used").length,
           activeStudents: students.filter((s) => s.is_activated).length,
+          departments: departments.length,
         });
         setRecentCodes(codes.slice(0, 10));
         setLoading(false);
@@ -55,10 +57,11 @@ export default function AdminDashboard() {
         <p className="text-muted-foreground mt-1">Platform overview and management</p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
         {[
           { label: "Students", value: stats.students, icon: Users, color: "text-blue-600" },
           { label: "Active", value: stats.activeStudents, icon: CheckCircle, color: "text-green-600" },
+          { label: "Departments", value: stats.departments, icon: Building2, color: "text-indigo-600" },
           { label: "Courses", value: stats.courses, icon: BookOpen, color: "text-purple-600" },
           { label: "Questions", value: stats.questions, icon: HelpCircle, color: "text-orange-600" },
           { label: "Total Codes", value: stats.codes, icon: KeyRound, color: "text-cyan-600" },

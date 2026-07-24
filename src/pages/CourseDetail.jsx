@@ -43,21 +43,10 @@ export default function CourseDetail() {
     );
   }
 
-  if (!courseMatchesProfile(course, profile)) {
-    return (
-      <div className="text-center py-16">
-        <Lock className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-        <p className="font-medium">This course is not available for your account</p>
-        <p className="text-sm text-muted-foreground mt-1">
-          You can only access {profile?.department_name} • {formatLevel(profile?.level)} courses.
-        </p>
-        <Link to="/courses"><Button variant="outline" className="mt-4">Back to Courses</Button></Link>
-      </div>
-    );
-  }
-
+  // Home course = student's own department & level. Other courses are free-trial only.
+  const isHome = courseMatchesProfile(course, profile);
   const freeUsed = profile?.free_trial_used?.[courseId] || 0;
-  const isActivated = profile?.is_activated;
+  const isActivated = profile?.is_activated && isHome;
   const canPractice = isActivated || freeUsed < FREE_TRIAL_LIMIT;
   const freeRemaining = Math.max(0, FREE_TRIAL_LIMIT - freeUsed);
   const totalQuestions = questions.length;
@@ -78,6 +67,13 @@ export default function CourseDetail() {
             <BookOpen className="w-4 h-4" /> {totalQuestions} Questions
           </span>
         </div>
+
+        {!isHome && (
+          <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 mb-4 text-sm">
+            You're viewing a <span className="font-medium">{course.department_name} • {formatLevel(course.level)}</span> course.
+            This is outside your department, so only free trial questions are available. Request activation for this department for full access.
+          </div>
+        )}
 
         {!isActivated && (
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">

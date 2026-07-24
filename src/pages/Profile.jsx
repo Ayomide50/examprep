@@ -15,8 +15,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { User, Mail, Shield, Calendar, CheckCircle, XCircle, Camera, Pencil, Trash2, Loader2, Save, X } from "lucide-react";
+import { User, Mail, Shield, Calendar, CheckCircle, XCircle, Camera, Pencil, Trash2, Loader2, Save, X, GraduationCap } from "lucide-react";
 import moment from "moment";
+import { formatLevel } from "@/lib/access";
 
 export default function Profile() {
   const { profile, user, loading, refresh } = useStudentProfile();
@@ -217,6 +218,16 @@ export default function Profile() {
             </div>
             <span className="text-sm font-medium">{user?.email}</span>
           </div>
+
+          {profile?.department_name && (
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm">
+                <GraduationCap className="w-4 h-4 text-muted-foreground" />
+                <span className="text-muted-foreground">Department</span>
+              </div>
+              <span className="text-sm font-medium">{profile.department_name} • {formatLevel(profile.level)}</span>
+            </div>
+          )}
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm">
