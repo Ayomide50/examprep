@@ -8,7 +8,20 @@
     <meta property="og:title" content="MyStudyApp — Pass Your Exams with Confidence" />
     <meta property="og:description" content="700+ CBT questions, mock exams, instant feedback and detailed explanations across 7 courses." />
     <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#4F46E5" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="MyStudyApp" />
+    <link rel="apple-touch-icon" href="https://media.base44.com/images/public/6a354dfd3b3faa3a21902063/864954727_generated_image.png" />
     <title>MyStudyApp — Pass Your Exams with Confidence</title>
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker.register("/sw.js");
+        });
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

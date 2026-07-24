@@ -10,6 +10,7 @@ import TestimonialsSection from "@/components/landing/TestimonialsSection";
 import CTASection from "@/components/landing/CTASection";
 import Footer from "@/components/landing/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import InstallAppBanner from "@/components/InstallAppBanner";
 
 export default function Landing() {
   return (
@@ -25,6 +26,7 @@ export default function Landing() {
       <CTASection />
       <Footer />
       <WhatsAppButton />
+      <InstallAppBanner />
     </div>
   );
 }
