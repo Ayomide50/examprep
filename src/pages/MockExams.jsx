@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
+import { courseQueryForProfile } from "@/lib/access";
 import { Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -17,11 +18,13 @@ export default function MockExams() {
   const [timeLimit, setTimeLimit] = useState("30");
 
   useEffect(() => {
-    base44.entities.Course.filter({ is_active: true }).then((data) => {
+    if (!profile) return;
+    base44.entities.Course.filter(courseQueryForProfile(profile)).then((data) => {
       setCourses(data);
       setLoading(false);
     });
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.department_id, profile?.level]);
 
   if (loading || profileLoading) {
     return (

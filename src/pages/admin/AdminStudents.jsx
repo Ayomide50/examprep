@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Users, Search, CheckCircle, XCircle, Trash2, Loader2, ShieldCheck } from "lucide-react";
+import { Users, Search, CheckCircle, XCircle, Trash2, Loader2, ShieldCheck, Pencil } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/components/ui/use-toast";
 import moment from "moment";
+import AssignDepartmentDialog from "@/components/admin/AssignDepartmentDialog";
+import { formatLevel } from "@/lib/access";
 
 export default function AdminStudents() {
   const { toast } = useToast();
@@ -27,14 +29,18 @@ export default function AdminStudents() {
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [departments, setDepartments] = useState([]);
+  const [editTarget, setEditTarget] = useState(null);
 
   const loadStudents = async () => {
     try {
-      const [profiles, users] = await Promise.all([
+      const [profiles, users, depts] = await Promise.all([
         base44.entities.StudentProfile.list("-created_date", 200),
         base44.entities.User.list("-created_date", 200),
+        base44.entities.Department.list("-created_date", 100),
       ]);
       setStudents(profiles);
+      setDepartments(depts);
       setAdminUserIds(new Set(users.filter((u) => u.role === "admin").map((u) => u.id)));
     } catch (error) {
       toast({
@@ -108,6 +114,7 @@ export default function AdminStudents() {
               <tr className="border-b border-border text-left">
                 <th className="px-5 py-3 font-medium text-muted-foreground">Student</th>
                 <th className="px-5 py-3 font-medium text-muted-foreground">Status</th>
+                <th className="px-5 py-3 font-medium text-muted-foreground hidden lg:table-cell">Department</th>
                 <th className="px-5 py-3 font-medium text-muted-foreground hidden md:table-cell">Code</th>
                 <th className="px-5 py-3 font-medium text-muted-foreground hidden md:table-cell">Questions</th>
                 <th className="px-5 py-3 font-medium text-muted-foreground hidden md:table-cell">Exams</th>
@@ -154,6 +161,16 @@ export default function AdminStudents() {
                       </span>
                     )}
                   </td>
+                  <td className="px-5 py-3 hidden lg:table-cell">
+                    {s.department_name ? (
+                      <div className="text-xs">
+                        <p className="font-medium">{s.department_name}</p>
+                        <p className="text-muted-foreground">{formatLevel(s.level)}</p>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">Not set</span>
+                    )}
+                  </td>
                   <td className="px-5 py-3 font-mono text-xs text-muted-foreground hidden md:table-cell">
                     {s.activation_code || "—"}
                   </td>
@@ -161,6 +178,13 @@ export default function AdminStudents() {
                   <td className="px-5 py-3 text-muted-foreground hidden md:table-cell">{s.total_mock_exams || 0}</td>
                   <td className="px-5 py-3 text-muted-foreground">{moment(s.created_date).format("MMM D")}</td>
                   <td className="px-5 py-3">
+                    <button
+                      onClick={() => setEditTarget(s)}
+                      className="p-1.5 hover:bg-muted rounded-md mr-1"
+                      title="Assign department & level"
+                    >
+                      <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+                    </button>
                     {isAdminUser(s) || isSelf(s) ? (
                       <span className="text-xs text-muted-foreground" title={isSelf(s) ? "You cannot delete yourself" : "Admin users cannot be deleted"}>
                         —
@@ -179,7 +203,7 @@ export default function AdminStudents() {
               ))}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-5 py-8 text-center text-muted-foreground">
+                  <td colSpan={8} className="px-5 py-8 text-center text-muted-foreground">
                     {search ? "No students match your search" : "No students registered yet"}
                   </td>
                 </tr>
@@ -208,6 +232,12 @@ export default function AdminStudents() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <AssignDepartmentDialog
+        student={editTarget}
+        departments={departments}
+        onClose={() => setEditTarget(null)}
+        onSaved={() => { setEditTarget(null); loadStudents(); }}
+      />
     </div>
   );
 }

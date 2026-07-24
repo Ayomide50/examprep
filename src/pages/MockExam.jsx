@@ -3,6 +3,7 @@ import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
 import { PASS_MARK, shuffleArray } from "@/lib/constants";
+import { courseMatchesProfile } from "@/lib/access";
 import { Clock, ChevronLeft, ChevronRight, Flag, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -137,6 +138,16 @@ export default function MockExam() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="w-8 h-8 border-4 border-muted border-t-primary rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (course && profile && !courseMatchesProfile(course, profile)) {
+    return (
+      <div className="max-w-lg mx-auto text-center py-16">
+        <h2 className="font-display text-xl font-bold mb-2">Access Restricted</h2>
+        <p className="text-muted-foreground mb-6">This course is not available for your account.</p>
+        <Button variant="outline" className="rounded-full" onClick={() => navigate("/mock-exams")}>Back to Mock Exams</Button>
       </div>
     );
   }

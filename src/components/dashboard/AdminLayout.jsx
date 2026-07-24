@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
-import { BookOpen, LayoutDashboard, Users, GraduationCap, HelpCircle, KeyRound, LogOut, Menu, X, BarChart3, Shield, Gift } from "lucide-react";
+import { BookOpen, LayoutDashboard, Users, GraduationCap, HelpCircle, KeyRound, LogOut, Menu, X, BarChart3, Shield, Gift, Building2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import ThemeToggle from "@/components/ThemeToggle";
 
 const navItems = [
   { path: "/admin", icon: LayoutDashboard, label: "Overview" },
   { path: "/admin/students", icon: Users, label: "Students" },
+  { path: "/admin/departments", icon: Building2, label: "Departments" },
   { path: "/admin/courses", icon: GraduationCap, label: "Courses" },
   { path: "/admin/questions", icon: HelpCircle, label: "Questions" },
   { path: "/admin/codes", icon: KeyRound, label: "Activation Codes" },

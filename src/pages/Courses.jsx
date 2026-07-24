@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
+import { useStudentProfile } from "@/hooks/useStudentProfile";
+import { courseQueryForProfile, formatLevel } from "@/lib/access";
 import { BookOpen, Calculator, Briefcase, TrendingUp, BarChart3, Users, Megaphone, Settings, Landmark, Laptop, Scale, Brain, Lightbulb, Store, ArrowRight, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
@@ -21,16 +23,19 @@ const iconMap = {
 };
 
 export default function Courses() {
+  const { profile, loading: profileLoading } = useStudentProfile();
   const [courses, setCourses] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    base44.entities.Course.filter({ is_active: true }).then((data) => {
+    if (!profile) return;
+    base44.entities.Course.filter(courseQueryForProfile(profile)).then((data) => {
       setCourses(data);
       setLoading(false);
     });
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.department_id, profile?.level]);
 
   const filtered = courses.filter(
     (c) =>
@@ -38,7 +43,7 @@ export default function Courses() {
       c.title.toLowerCase().includes(search.toLowerCase())
   );
 
-  if (loading) {
+  if (loading || profileLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="w-8 h-8 border-4 border-muted border-t-primary rounded-full animate-spin" />
@@ -50,7 +55,9 @@ export default function Courses() {
     <div className="max-w-6xl mx-auto space-y-8">
       <div>
         <h1 className="font-display text-2xl md:text-3xl font-bold">Courses</h1>
-        <p className="text-muted-foreground mt-1">Select a course to start practicing</p>
+        <p className="text-muted-foreground mt-1">
+          {profile?.department_name} • {formatLevel(profile?.level)} — select a course to start practicing
+        </p>
       </div>
 
       <div className="relative max-w-md">
@@ -89,7 +96,9 @@ export default function Courses() {
 
       {filtered.length === 0 && (
         <div className="text-center py-16">
-          <p className="text-muted-foreground">No courses found matching "{search}"</p>
+          <p className="text-muted-foreground">
+            {search ? `No courses found matching "${search}"` : "No courses have been added for your department and level yet. Check back soon."}
+          </p>
         </div>
       )}
     </div>

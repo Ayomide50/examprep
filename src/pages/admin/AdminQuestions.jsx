@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/components/ui/use-toast";
+import { formatLevel } from "@/lib/access";
 
 const emptyForm = {
   question_text: "", course_id: "", course_code: "", option_a: "", option_b: "", option_c: "", option_d: "",
@@ -27,6 +28,13 @@ export default function AdminQuestions() {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [departments, setDepartments] = useState([]);
+  const [filterDept, setFilterDept] = useState("all");
+  const [filterLevel, setFilterLevel] = useState("all");
+  const [formDept, setFormDept] = useState("");
+  const [formLevel, setFormLevel] = useState("");
+  const [uploadDept, setUploadDept] = useState("");
+  const [uploadLevel, setUploadLevel] = useState("");
 
   const syncCourseCount = async (courseId) => {
     if (!courseId) return;
@@ -35,12 +43,14 @@ export default function AdminQuestions() {
   };
 
   const load = async () => {
-    const [q, c] = await Promise.all([
+    const [q, c, d] = await Promise.all([
       base44.entities.Question.list("-created_date", 200),
-      base44.entities.Course.list("-created_date", 50),
+      base44.entities.Course.list("-created_date", 200),
+      base44.entities.Department.list("-created_date", 100),
     ]);
     setQuestions(q);
     setCourses(c);
+    setDepartments(d);
     setLoading(false);
   };
 
@@ -84,6 +94,9 @@ export default function AdminQuestions() {
       correct_answer: q.correct_answer, explanation: q.explanation || "", difficulty: q.difficulty || "medium",
       is_free_trial: q.is_free_trial || false, is_active: q.is_active !== false,
     });
+    const qc = courses.find((c) => c.id === q.course_id);
+    setFormDept(qc?.department_id || "");
+    setFormLevel(qc?.level || "");
     setShowForm(true);
   };
 
@@ -98,6 +111,10 @@ export default function AdminQuestions() {
   const handleFileUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (!uploadDept || !uploadLevel) {
+      toast({ title: "Select department and level first", variant: "destructive" });
+      return;
+    }
     setUploading(true);
 
     try {
@@ -128,7 +145,9 @@ export default function AdminQuestions() {
         // Normalize course codes for tolerant matching (case + whitespace insensitive)
         const normalize = (s) => (s || "").trim().toUpperCase().replace(/\s+/g, " ");
         const courseByNorm = {};
-        courses.forEach((c) => { courseByNorm[normalize(c.code)] = c; });
+        courses
+          .filter((c) => c.department_id === uploadDept && c.level === uploadLevel)
+          .forEach((c) => { courseByNorm[normalize(c.code)] = c; });
 
         let created = 0;
         let skipped = 0;
@@ -189,10 +208,16 @@ export default function AdminQuestions() {
     URL.revokeObjectURL(url);
   };
 
+  const courseMap = Object.fromEntries(courses.map((c) => [c.id, c]));
+  const levelsOf = (deptId) => departments.find((d) => d.id === deptId)?.levels || [];
+
   const filtered = questions.filter((q) => {
     const matchSearch = q.question_text.toLowerCase().includes(search.toLowerCase());
     const matchCourse = filterCourse === "all" || q.course_id === filterCourse;
-    return matchSearch && matchCourse;
+    const qc = courseMap[q.course_id];
+    const matchDept = filterDept === "all" || qc?.department_id === filterDept;
+    const matchLevel = filterLevel === "all" || qc?.level === filterLevel;
+    return matchSearch && matchCourse && matchDept && matchLevel;
   });
 
   if (loading) {
@@ -217,7 +242,7 @@ export default function AdminQuestions() {
           <Button variant="outline" className="rounded-full gap-2" onClick={() => setShowUpload(true)}>
             <Upload className="w-4 h-4" /> Import
           </Button>
-          <Button className="rounded-full gap-2" onClick={() => { setEditing(null); setForm(emptyForm); setShowForm(true); }}>
+          <Button className="rounded-full gap-2" onClick={() => { setEditing(null); setForm(emptyForm); setFormDept(""); setFormLevel(""); setShowForm(true); }}>
             <Plus className="w-4 h-4" /> Add Question
           </Button>
         </div>
@@ -228,15 +253,40 @@ export default function AdminQuestions() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input placeholder="Search questions..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 rounded-full" />
         </div>
+        <Select value={filterDept} onValueChange={(v) => { setFilterDept(v); setFilterLevel("all"); setFilterCourse("all"); }}>
+          <SelectTrigger className="w-full sm:w-48 rounded-full">
+            <SelectValue placeholder="All Departments" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Departments</SelectItem>
+            {departments.map((d) => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <Select value={filterLevel} onValueChange={(v) => { setFilterLevel(v); setFilterCourse("all"); }}>
+          <SelectTrigger className="w-full sm:w-36 rounded-full">
+            <SelectValue placeholder="All Levels" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Levels</SelectItem>
+            {(filterDept === "all"
+              ? [...new Set(courses.map((c) => c.level).filter(Boolean))].sort()
+              : levelsOf(filterDept)
+            ).map((l) => (
+              <SelectItem key={l} value={l}>{formatLevel(l)}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Select value={filterCourse} onValueChange={setFilterCourse}>
           <SelectTrigger className="w-full sm:w-48 rounded-full">
             <SelectValue placeholder="All Courses" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Courses</SelectItem>
-            {courses.map((c) => (
-              <SelectItem key={c.id} value={c.id}>{c.code} — {c.title}</SelectItem>
-            ))}
+            {courses
+              .filter((c) => (filterDept === "all" || c.department_id === filterDept) && (filterLevel === "all" || c.level === filterLevel))
+              .map((c) => (
+                <SelectItem key={c.id} value={c.id}>{c.code} — {c.title}</SelectItem>
+              ))}
           </SelectContent>
         </Select>
       </div>
@@ -276,12 +326,34 @@ export default function AdminQuestions() {
             <DialogTitle>{editing ? "Edit Question" : "Add Question"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-sm font-medium mb-1 block">Department</label>
+                <Select value={formDept} onValueChange={(v) => { setFormDept(v); setFormLevel(""); setForm({ ...form, course_id: "" }); }}>
+                  <SelectTrigger><SelectValue placeholder="Select department" /></SelectTrigger>
+                  <SelectContent>
+                    {departments.map((d) => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1 block">Level</label>
+                <Select value={formLevel} onValueChange={(v) => { setFormLevel(v); setForm({ ...form, course_id: "" }); }} disabled={!formDept}>
+                  <SelectTrigger><SelectValue placeholder="Select level" /></SelectTrigger>
+                  <SelectContent>
+                    {levelsOf(formDept).map((l) => <SelectItem key={l} value={l}>{formatLevel(l)}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
             <div>
               <label className="text-sm font-medium mb-1 block">Course</label>
-              <Select value={form.course_id} onValueChange={(v) => setForm({ ...form, course_id: v })}>
-                <SelectTrigger><SelectValue placeholder="Select course" /></SelectTrigger>
+              <Select value={form.course_id} onValueChange={(v) => setForm({ ...form, course_id: v })} disabled={!formDept || !formLevel}>
+                <SelectTrigger><SelectValue placeholder={formDept && formLevel ? "Select course" : "Select department and level first"} /></SelectTrigger>
                 <SelectContent>
-                  {courses.map((c) => <SelectItem key={c.id} value={c.id}>{c.code} — {c.title}</SelectItem>)}
+                  {courses
+                    .filter((c) => c.department_id === formDept && c.level === formLevel)
+                    .map((c) => <SelectItem key={c.id} value={c.id}>{c.code} — {c.title}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -348,7 +420,27 @@ export default function AdminQuestions() {
             <p className="text-sm text-muted-foreground">
               Download the template first, fill it with your questions, then upload it. Columns: question_text, course_code, option_a, option_b, option_c, option_d, correct_answer, explanation, difficulty
             </p>
-            <Input type="file" accept=".csv,.xlsx,.xls" onChange={handleFileUpload} disabled={uploading} />
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-sm font-medium mb-1 block">Department</label>
+                <Select value={uploadDept} onValueChange={(v) => { setUploadDept(v); setUploadLevel(""); }}>
+                  <SelectTrigger><SelectValue placeholder="Select department" /></SelectTrigger>
+                  <SelectContent>
+                    {departments.map((d) => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1 block">Level</label>
+                <Select value={uploadLevel} onValueChange={setUploadLevel} disabled={!uploadDept}>
+                  <SelectTrigger><SelectValue placeholder="Select level" /></SelectTrigger>
+                  <SelectContent>
+                    {levelsOf(uploadDept).map((l) => <SelectItem key={l} value={l}>{formatLevel(l)}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <Input type="file" accept=".csv,.xlsx,.xls" onChange={handleFileUpload} disabled={uploading || !uploadDept || !uploadLevel} />
             {uploading && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <div className="w-4 h-4 border-2 border-muted border-t-primary rounded-full animate-spin" />

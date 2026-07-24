@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
 import { FREE_TRIAL_LIMIT, getWhatsAppLink, shuffleArray } from "@/lib/constants";
+import { courseMatchesProfile, formatLevel } from "@/lib/access";
 import { ArrowLeft, ArrowRight, RotateCcw, MessageCircle, Lock, BookOpen, Bookmark, Trophy, Home, Eye, CheckCircle, XCircle, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -261,6 +262,19 @@ export default function PracticeMode() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="w-8 h-8 border-4 border-muted border-t-primary rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (course && !courseMatchesProfile(course, profile)) {
+    return (
+      <div className="max-w-lg mx-auto text-center py-16">
+        <Lock className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+        <h2 className="font-display text-xl font-bold mb-2">Access Restricted</h2>
+        <p className="text-muted-foreground mb-6">
+          This course is not available for your account. You can only access {profile?.department_name} • {formatLevel(profile?.level)} courses.
+        </p>
+        <Button variant="outline" onClick={() => navigate("/courses")}>Back to Courses</Button>
       </div>
     );
   }

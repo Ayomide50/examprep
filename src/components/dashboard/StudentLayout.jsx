@@ -4,6 +4,8 @@ import { BookOpen, LayoutDashboard, GraduationCap, FileText, Clock, KeyRound, Lo
 import { base44 } from "@/api/base44Client";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import ThemeToggle from "@/components/ThemeToggle";
+import { useStudentProfile } from "@/hooks/useStudentProfile";
+import DepartmentSetup from "@/components/dashboard/DepartmentSetup";
 
 const navItems = [
   { path: "/dashboard", icon: LayoutDashboard, label: "Dashboard", match: (p) => p === "/dashboard" },
@@ -19,6 +21,7 @@ const navItems = [
 export default function StudentLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  const { profile, loading: profileLoading, refresh } = useStudentProfile();
 
   const handleLogout = () => {
     base44.auth.logout("/");
@@ -93,7 +96,15 @@ export default function StudentLayout() {
       {/* Main content */}
       <main className="lg:ml-64 pt-14 lg:pt-0 min-h-screen">
         <div className="p-4 md:p-8">
-          <Outlet />
+          {profileLoading ? (
+            <div className="flex items-center justify-center min-h-[60vh]">
+              <div className="w-8 h-8 border-4 border-muted border-t-primary rounded-full animate-spin" />
+            </div>
+          ) : profile && !profile.department_id ? (
+            <DepartmentSetup profile={profile} onDone={refresh} />
+          ) : (
+            <Outlet />
+          )}
         </div>
       </main>
 

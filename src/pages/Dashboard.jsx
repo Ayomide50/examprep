@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
+import { courseQueryForProfile, formatLevel } from "@/lib/access";
 import { FadeIn, StaggerGroup, StaggerItem } from "@/components/ui/FadeIn";
 import { BookOpen, Target, Trophy, Clock, ArrowRight, AlertCircle, CheckCircle, Calculator, Briefcase, TrendingUp, BarChart3, Users, Megaphone, Settings, Landmark, Laptop, Scale, Brain, Lightbulb, Store, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -44,8 +45,11 @@ export default function Dashboard() {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
-    base44.entities.Course.filter({ is_active: true }).then(setCourses);
-  }, []);
+    if (profile?.department_id) {
+      base44.entities.Course.filter(courseQueryForProfile(profile)).then(setCourses);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.department_id, profile?.level]);
 
   useEffect(() => {
     if (user) {
@@ -103,6 +107,11 @@ export default function Dashboard() {
               Welcome back{user?.full_name ? `, ${user.full_name.split(" ")[0]}` : ""}
             </h1>
             <p className="text-muted-foreground mt-1">Track your progress and keep practicing</p>
+            {profile?.department_name && (
+              <p className="text-sm font-medium text-primary mt-1">
+                {profile.department_name} • {formatLevel(profile.level)}
+              </p>
+            )}
           </div>
         </FadeIn>
         <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>

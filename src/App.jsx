@@ -45,6 +45,7 @@ import AdminQuestions from "@/pages/admin/AdminQuestions";
 import AdminCodes from "@/pages/admin/AdminCodes";
 import AdminAdmins from "@/pages/admin/AdminAdmins";
 import AdminReferrals from "@/pages/admin/AdminReferrals";
+import AdminDepartments from "@/pages/admin/AdminDepartments";
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError } = useAuth();
@@ -91,6 +92,7 @@ const AuthenticatedApp = () => {
         <Route element={<AdminLayout />}>
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/students" element={<AdminStudents />} />
+          <Route path="/admin/departments" element={<AdminDepartments />} />
           <Route path="/admin/courses" element={<AdminCourses />} />
           <Route path="/admin/questions" element={<AdminQuestions />} />
           <Route path="/admin/codes" element={<AdminCodes />} />

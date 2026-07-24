@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
 import { FREE_TRIAL_LIMIT, getWhatsAppLink } from "@/lib/constants";
+import { courseMatchesProfile, formatLevel } from "@/lib/access";
 import { BookOpen, Play, Lock, ArrowLeft, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -37,6 +38,19 @@ export default function CourseDetail() {
     return (
       <div className="text-center py-16">
         <p className="text-muted-foreground">Course not found</p>
+        <Link to="/courses"><Button variant="outline" className="mt-4">Back to Courses</Button></Link>
+      </div>
+    );
+  }
+
+  if (!courseMatchesProfile(course, profile)) {
+    return (
+      <div className="text-center py-16">
+        <Lock className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+        <p className="font-medium">This course is not available for your account</p>
+        <p className="text-sm text-muted-foreground mt-1">
+          You can only access {profile?.department_name} • {formatLevel(profile?.level)} courses.
+        </p>
         <Link to="/courses"><Button variant="outline" className="mt-4">Back to Courses</Button></Link>
       </div>
     );
