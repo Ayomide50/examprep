@@ -2,7 +2,7 @@ import React from "react";
 import LandingNav from "@/components/landing/LandingNav";
 import HeroSection from "@/components/landing/HeroSection";
 import FeaturesSection from "@/components/landing/FeaturesSection";
-import CoursesSection from "@/components/landing/CoursesSection";
+import DepartmentsSection from "@/components/landing/DepartmentsSection";
 import HowItWorksSection from "@/components/landing/HowItWorksSection";
 import PricingSection from "@/components/landing/PricingSection";
 import FAQSection from "@/components/landing/FAQSection";
@@ -17,7 +17,7 @@ export default function Landing() {
       <LandingNav />
       <HeroSection />
       <FeaturesSection />
-      <div id="courses"><CoursesSection /></div>
+      <div id="courses"><DepartmentsSection /></div>
       <div id="how-it-works"><HowItWorksSection /></div>
       <PricingSection />
       <FAQSection />
