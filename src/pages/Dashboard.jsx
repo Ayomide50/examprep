@@ -103,12 +103,12 @@ export default function Dashboard() {
       <div className="flex items-start justify-between gap-4">
         <FadeIn>
           <div>
-            <h1 className="font-display text-2xl md:text-3xl font-bold">
+            <h1 className="font-display text-lg md:text-xl font-semibold">
               Welcome back{user?.full_name ? `, ${user.full_name.split(" ")[0]}` : ""}
             </h1>
-            <p className="text-muted-foreground mt-1">Track your progress and keep practicing</p>
+            <p className="text-sm text-muted-foreground mt-0.5">Track your progress and keep practicing</p>
             {profile?.department_name && (
-              <p className="text-sm font-medium text-primary mt-1">
+              <p className="text-xs font-medium text-primary mt-1">
                 {profile.department_name} • {formatLevel(profile.level)}
               </p>
             )}
@@ -116,8 +116,8 @@ export default function Dashboard() {
         </FadeIn>
         <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <AlertDialogTrigger asChild>
-            <button className="inline-flex items-center gap-2 text-sm font-medium text-destructive hover:text-destructive/80 border border-destructive/30 hover:bg-destructive/5 rounded-lg px-3 py-2 transition-colors shrink-0">
-              <Trash2 className="w-4 h-4" />
+            <button className="inline-flex items-center gap-1.5 text-xs font-medium text-destructive hover:text-destructive/80 border border-destructive/30 hover:bg-destructive/5 rounded-full px-3 py-1.5 transition-colors shrink-0">
+              <Trash2 className="w-3.5 h-3.5" />
               Clear Progress
             </button>
           </AlertDialogTrigger>
