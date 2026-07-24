@@ -8,7 +8,7 @@ self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
 });
 
-self.addEventListener("fetch", (event) => {
-  // Pass-through — required for install prompt eligibility on Android.
-  event.respondWith(fetch(event.request).catch(() => caches.match(event.request)));
+self.addEventListener("fetch", () => {
+  // Intentionally empty pass-through — required for install prompt eligibility on Android.
+  // The browser handles all requests normally.
 });
