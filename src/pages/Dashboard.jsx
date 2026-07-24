@@ -202,7 +202,7 @@ export default function Dashboard() {
             View all <ArrowRight className="w-3 h-3" />
           </Link>
         </div>
-        <StaggerGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" stagger={0.08}>
+        <StaggerGroup key={courses.length} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" stagger={0.08}>
           {courses.slice(0, 6).map((course) => {
             const Icon = iconMap[course.icon] || BookOpen;
             return (
