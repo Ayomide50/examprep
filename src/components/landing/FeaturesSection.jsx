@@ -40,7 +40,7 @@ const features = [
   },
   {
     icon: Brain,
-    title: "1000+ Questions",
+    title: "7000+ Questions",
     description: "Access a comprehensive bank of curated questions spanning ten major courses with full coverage.",
     color: "text-indigo-600 bg-indigo-50",
     iconBg: "bg-indigo-100",
