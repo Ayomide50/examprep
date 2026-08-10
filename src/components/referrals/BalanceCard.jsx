@@ -1,5 +1,5 @@
 import React from "react";
-import { BadgeDollarSign, Info } from "lucide-react";
+import { Banknote, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MIN_WITHDRAWAL, formatNaira } from "@/lib/referral";
 
@@ -9,7 +9,7 @@ export default function BalanceCard({ balance, onWithdraw }) {
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
           <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center">
-            <BadgeDollarSign className="w-5 h-5 text-primary" />
+            <Banknote className="w-5 h-5 text-primary" />
           </div>
 
           <div>
@@ -27,10 +27,7 @@ export default function BalanceCard({ balance, onWithdraw }) {
 
       <div className="flex items-start gap-2 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 text-amber-800 dark:text-amber-300 text-sm rounded-lg px-3 py-2.5">
         <Info className="w-4 h-4 shrink-0 mt-0.5" />
-        <span>
-          Minimum withdrawal amount is {formatNaira(MIN_WITHDRAWAL)}. Refer
-          more users to increase your balance!
-        </span>
+        <span>You can request a payout once your earnings reach {formatNaira(MIN_WITHDRAWAL)}.</span>
       </div>
     </div>
   );
