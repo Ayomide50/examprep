@@ -95,8 +95,8 @@ export default function Referrals() {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
-        <h1 className="font-display text-2xl md:text-3xl font-bold">Refer & Earn</h1>
-        <p className="text-muted-foreground mt-1">Invite friends and earn ₦{REWARD_PER_REFERRAL} for each one that activates</p>
+        <h1 className="font-display text-2xl md:text-3xl font-bold">Invite & Earn</h1>
+        <p className="text-muted-foreground mt-1">Share MyStudyApp with your friends and get rewarded when they become active users ₦{REWARD_PER_REFERRAL} for each one that activates</p>
       </div>
 
       <BalanceCard balance={balance} onWithdraw={handleWithdraw} />
