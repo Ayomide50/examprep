@@ -5,7 +5,7 @@ import { generateReferralCode, REWARD_PER_REFERRAL, MIN_WITHDRAWAL } from "@/lib
 import BalanceCard from "@/components/referrals/BalanceCard";
 import ReferralCodeCard from "@/components/referrals/ReferralCodeCard";
 import ReferralStats from "@/components/referrals/ReferralStats";
-// import HowItWorksCard from "@/components/referrals/HowItWorksCard";
+import HowItWorksCard from "@/components/referrals/HowItWorksCard";
 import WithdrawalHistory from "@/components/referrals/WithdrawalHistory";
 import NotEligibleDialog from "@/components/referrals/NotEligibleDialog";
 import WithdrawReceiptDialog from "@/components/referrals/WithdrawReceiptDialog";
@@ -108,7 +108,7 @@ export default function Referrals() {
         totalRewards={totalRewards}
       />
       <WithdrawalHistory withdrawals={withdrawals} />
-      // <HowItWorksCard />
+      <HowItWorksCard />
 
       {referrals.length > 0 && (
         <div className="bg-card border border-border/60 rounded-xl p-6">
