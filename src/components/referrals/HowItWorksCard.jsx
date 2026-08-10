@@ -1,10 +1,16 @@
 import React from "react";
 import { REWARD_PER_REFERRAL, MIN_WITHDRAWAL, formatNaira } from "@/lib/referral";
 
+const steps = [
+  { title: "Invite someone to MyStudyApp with your referral code", },
+  { title: `Earn ${formatNaira(REWARD_PER_REFERRAL)} per referral`, },
+  { title: "Withdraw to your bank",  },
+];
+
 export default function HowItWorksCard() {
   return (
     <div className="bg-card border border-border/60 rounded-xl p-6">
-      <h2 className="font-heading font-semibold mb-4">How It Works</h2>
+      <h2 className="font-heading font-semibold mb-4">Get your invite code</h2>
       <ol className="space-y-4">
         {steps.map((step, i) => (
           <li key={step.title} className="flex gap-3">
