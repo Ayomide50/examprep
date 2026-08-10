@@ -108,7 +108,7 @@ export default function Referrals() {
         totalRewards={totalRewards}
       />
       <WithdrawalHistory withdrawals={withdrawals} />
-      <HowItWorksCard />
+      // <HowItWorksCard />
 
       {referrals.length > 0 && (
         <div className="bg-card border border-border/60 rounded-xl p-6">
