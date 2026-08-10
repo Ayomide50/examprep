@@ -35,7 +35,6 @@ export default function ReferralCodeCard({ code }) {
 
   return (
     <div className="bg-card border border-border/60 rounded-xl p-6 space-y-4">
-      <h2 className="font-heading font-semibold">Your Referral Code</h2>
       <div className="flex items-center gap-2">
         <div className="flex-1 bg-muted/60 border border-border rounded-lg py-3 text-center font-mono text-lg md:text-xl font-bold tracking-widest">
           {code}
