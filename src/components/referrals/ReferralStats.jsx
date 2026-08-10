@@ -1,12 +1,12 @@
 import React from "react";
-import { UserPlus, UserCheck, UserRoundClock, HandCoins } from "lucide-react";
+import { Users, TrendingUp, Clock, HandCoins } from "lucide-react";
 import { formatNaira } from "@/lib/referral";
 
 export default function ReferralStats({ total, active, pending, totalRewards }) {
   const stats = [
-    { icon: UserPlus, label: "Total Referrals", value: total, color: "text-foreground" },
-    { icon: UserCheck, label: "Active Referrals", value: active, color: "text-green-600" },
-    { icon: UserRoundClock, label: "Pending Referrals", value: pending, color: "text-amber-600" },
+    { icon: Users, label: "Total Referrals", value: total, color: "text-foreground" },
+    { icon: TrendingUp, label: "Active Referrals", value: active, color: "text-green-600" },
+    { icon: Clock, label: "Pending Referrals", value: pending, color: "text-amber-600" },
     { icon: HandCoins, label: "Total Rewards", value: formatNaira(totalRewards), color: "text-foreground" },
   ];
 
