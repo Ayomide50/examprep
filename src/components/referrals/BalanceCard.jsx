@@ -13,7 +13,6 @@ export default function BalanceCard({ balance, onWithdraw }) {
           </div>
 
           <div>
-            // <p className="text-xs text-muted-foreground">Available Balance</p>
             <p className="font-display text-3xl font-bold">
               {formatNaira(balance)}
             </p>
