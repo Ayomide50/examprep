@@ -1,5 +1,5 @@
 import React from "react";
-import { Banknote, Info } from "lucide-react";
+import { Banknote, CircleAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MIN_WITHDRAWAL, formatNaira } from "@/lib/referral";
 
@@ -25,7 +25,7 @@ export default function BalanceCard({ balance, onWithdraw }) {
       </div>
 
       <div className="flex items-start gap-2 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 text-amber-800 dark:text-amber-300 text-sm rounded-lg px-3 py-2.5">
-        <Info className="w-4 h-4 shrink-0 mt-0.5" />
+        <CircleAlert className="w-4 h-4 shrink-0 mt-0.5" />
         <span>You can request a payout once your earnings reach {formatNaira(MIN_WITHDRAWAL)}.</span>
       </div>
     </div>
