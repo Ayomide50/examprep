@@ -96,7 +96,7 @@ export default function Referrals() {
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
         <h1 className="font-display text-2xl md:text-3xl font-bold">Invite & Earn</h1>
-        <p className="text-muted-foreground mt-1">Share MyStudyApp with your friends and get rewarded when they become active users</p>
+        <p className="text-muted-foreground mt-1">Share MyStudyApp with your friends and get rewarded</p>
       </div>
 
       <BalanceCard balance={balance} onWithdraw={handleWithdraw} />
