@@ -5,7 +5,6 @@ import { generateReferralCode, REWARD_PER_REFERRAL, MIN_WITHDRAWAL } from "@/lib
 import BalanceCard from "@/components/referrals/BalanceCard";
 import ReferralCodeCard from "@/components/referrals/ReferralCodeCard";
 import ReferralStats from "@/components/referrals/ReferralStats";
-
 import WithdrawalHistory from "@/components/referrals/WithdrawalHistory";
 import NotEligibleDialog from "@/components/referrals/NotEligibleDialog";
 import WithdrawReceiptDialog from "@/components/referrals/WithdrawReceiptDialog";
