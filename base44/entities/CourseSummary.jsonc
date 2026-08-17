@@ -1,0 +1,49 @@
+{
+  "name": "CourseSummary",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Title of the summary e.g. Introduction to Accounting - Full Notes"
+    },
+    "description": {
+      "type": "string",
+      "description": "Short description of what the summary covers"
+    },
+    "department_id": {
+      "type": "string",
+      "description": "Department this summary belongs to"
+    },
+    "department_name": {
+      "type": "string"
+    },
+    "level": {
+      "type": "string",
+      "description": "Optional academic level e.g. 100"
+    },
+    "course_id": {
+      "type": "string",
+      "description": "Optional linked course"
+    },
+    "course_code": {
+      "type": "string"
+    },
+    "file_url": {
+      "type": "string",
+      "description": "URL of the uploaded summary file (PDF, doc, etc.)"
+    },
+    "file_name": {
+      "type": "string",
+      "description": "Original file name for display"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "title",
+    "department_id",
+    "file_url"
+  ]
+}

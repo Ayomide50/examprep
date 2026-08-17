@@ -31,6 +31,8 @@ import MockExamResult from "@/pages/MockExamResult";
 import History from "@/pages/History";
 import Activate from "@/pages/Activate";
 import Referrals from "@/pages/Referrals";
+import Summaries from "@/pages/Summaries";
+import Feedback from "@/pages/Feedback";
 import Profile from "@/pages/Profile";
 
 // Layouts
@@ -46,6 +48,8 @@ import AdminCodes from "@/pages/admin/AdminCodes";
 import AdminAdmins from "@/pages/admin/AdminAdmins";
 import AdminReferrals from "@/pages/admin/AdminReferrals";
 import AdminDepartments from "@/pages/admin/AdminDepartments";
+import AdminSummaries from "@/pages/admin/AdminSummaries";
+import AdminFeedback from "@/pages/admin/AdminFeedback";
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError } = useAuth();
@@ -82,6 +86,8 @@ const AuthenticatedApp = () => {
           <Route path="/mock-exam-result/:resultId" element={<MockExamResult />} />
           <Route path="/history" element={<History />} />
           <Route path="/referrals" element={<Referrals />} />
+          <Route path="/summaries" element={<Summaries />} />
+          <Route path="/feedback" element={<Feedback />} />
           <Route path="/activate" element={<Activate />} />
           <Route path="/profile" element={<Profile />} />
         </Route>
@@ -97,6 +103,8 @@ const AuthenticatedApp = () => {
           <Route path="/admin/questions" element={<AdminQuestions />} />
           <Route path="/admin/codes" element={<AdminCodes />} />
           <Route path="/admin/referrals" element={<AdminReferrals />} />
+          <Route path="/admin/summaries" element={<AdminSummaries />} />
+          <Route path="/admin/feedback" element={<AdminFeedback />} />
           <Route path="/admin/admins" element={<AdminAdmins />} />
         </Route>
       </Route>

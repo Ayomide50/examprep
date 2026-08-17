@@ -1,0 +1,42 @@
+{
+  "name": "Feedback",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "Reference to User"
+    },
+    "email": {
+      "type": "string"
+    },
+    "full_name": {
+      "type": "string"
+    },
+    "subject": {
+      "type": "string",
+      "description": "Short subject of the complaint or feedback"
+    },
+    "message": {
+      "type": "string",
+      "description": "Detailed feedback message"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "in_progress",
+        "resolved"
+      ],
+      "default": "open"
+    },
+    "admin_reply": {
+      "type": "string",
+      "description": "Optional reply from the admin team"
+    }
+  },
+  "required": [
+    "user_id",
+    "subject",
+    "message"
+  ]
+}

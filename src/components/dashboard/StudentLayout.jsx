@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
-import { BookOpen, LayoutDashboard, GraduationCap, FileText, Clock, KeyRound, LogOut, Menu, X, User, Pencil, Gift } from "lucide-react";
+import { BookOpen, LayoutDashboard, GraduationCap, FileText, Clock, KeyRound, LogOut, Menu, X, User, Pencil, Gift, Download, MessageSquare } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -14,6 +14,7 @@ const navItems = [
   { path: "/mock-exams", icon: FileText, label: "Mock Exams", match: (p) => p.startsWith("/mock-exam") },
   { path: "/history", icon: Clock, label: "History", match: (p) => p === "/history" },
   { path: "/referrals", icon: Gift, label: "Refer & Earn", match: (p) => p === "/referrals" },
+  { path: "/summaries", icon: Download, label: "Summaries", match: (p) => p === "/summaries" },
   { path: "/activate", icon: KeyRound, label: "Activate", match: (p) => p === "/activate" },
   { path: "/profile", icon: User, label: "Profile", match: (p) => p === "/profile" },
 ];
@@ -103,6 +104,18 @@ export default function StudentLayout() {
               <span className="text-sm text-muted-foreground">Appearance</span>
               <ThemeToggle />
             </div>
+            <Link
+              to="/feedback"
+              onClick={() => setSidebarOpen(false)}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors mb-1 ${
+                location.pathname === "/feedback"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              }`}
+            >
+              <MessageSquare className="w-4 h-4" />
+              Feedback
+            </Link>
             <button
               onClick={handleLogout}
               className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-colors w-full"
