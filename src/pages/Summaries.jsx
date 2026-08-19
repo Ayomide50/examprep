@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { BookOpen, Lock, FileText, X, Loader2 } from "lucide-react";
+import { BookOpen, Lock, FileText, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
@@ -11,26 +11,6 @@ export default function Summaries() {
   const [summaries, setSummaries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [reading, setReading] = useState(null);
-  const [signedUrl, setSignedUrl] = useState("");
-  const [urlLoading, setUrlLoading] = useState(false);
-
-  const openReader = async (summary) => {
-    setReading(summary);
-    setSignedUrl("");
-    setUrlLoading(true);
-    try {
-      // Generate a short-lived signed URL each time a student opens the file.
-      const { signed_url } = await base44.integrations.Core.CreateFileSignedUrl({
-        file_uri: summary.file_url,
-        expires_in: 1800,
-      });
-      setSignedUrl(signed_url);
-    } catch {
-      setSignedUrl(summary.file_url);
-    } finally {
-      setUrlLoading(false);
-    }
-  };
 
   useEffect(() => {
     const load = async () => {
@@ -104,7 +84,7 @@ export default function Summaries() {
             <Button
               className="rounded-full gap-2 w-full"
               disabled={!activated}
-              onClick={() => openReader(s)}
+              onClick={() => setReading(s)}
             >
               {activated ? <BookOpen className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
               {activated ? "Read Summary" : "Locked"}
@@ -140,26 +120,15 @@ export default function Summaries() {
                   <X className="w-4 h-4" />
                 </Button>
               </div>
-              <div
-                className="flex-1 bg-muted/30 select-none"
-                onContextMenu={(e) => e.preventDefault()}
-              >
-                {urlLoading ? (
-                  <div className="flex items-center justify-center h-full">
-                    <Loader2 className="w-6 h-6 text-muted-foreground animate-spin" />
-                  </div>
-                ) : signedUrl ? (
-                  <iframe
-                    src={`${signedUrl}#toolbar=0&navpanes=0&view=FitH`}
-                    title={reading.title}
-                    className="w-full h-full"
-                    referrerPolicy="no-referrer"
-                  />
-                ) : (
-                  <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
-                    Unable to load summary.
-                  </div>
-                )}
+              <div className="flex-1 bg-muted/30">
+                <iframe
+                  src={reading.file_url}
+                  title={reading.title}
+                  className="w-full h-full"
+                  // Disables the browser toolbar/download button in supporting viewers
+                  // and blocks top-level navigation away from the embed.
+                  referrerPolicy="no-referrer"
+                />
               </div>
               <div className="px-4 py-2 border-t border-border text-xs text-muted-foreground flex items-center justify-between">
                 <span>Read-only — downloading is disabled.</span>
