@@ -53,8 +53,9 @@ export default function AdminSummaries() {
     if (!file) return;
     setUploading(true);
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      setForm((f) => ({ ...f, file_url, file_name: file.name }));
+      // Store privately so the file is never reachable via a permanent public URL.
+      const { file_uri } = await base44.integrations.Core.UploadPrivateFile({ file });
+      setForm((f) => ({ ...f, file_url: file_uri, file_name: file.name }));
     } catch (err) {
       toast({ title: "File upload failed", variant: "destructive" });
     } finally {
