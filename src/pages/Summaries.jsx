@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Download, Lock, FileText, Loader2 } from "lucide-react";
+import { BookOpen, Lock, FileText, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
 import { Link } from "react-router-dom";
 
@@ -9,6 +10,7 @@ export default function Summaries() {
   const { profile, loading: profileLoading } = useStudentProfile();
   const [summaries, setSummaries] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [reading, setReading] = useState(null);
 
   useEffect(() => {
     const load = async () => {
@@ -42,7 +44,7 @@ export default function Summaries() {
       <div>
         <h1 className="font-display text-2xl md:text-3xl font-bold">Course Summaries</h1>
         <p className="text-muted-foreground mt-1">
-          Download study summaries for your department
+          Read study summaries for your department
         </p>
       </div>
 
@@ -52,7 +54,7 @@ export default function Summaries() {
           <div className="text-sm">
             <p className="font-medium">Activation required</p>
             <p className="mt-0.5">
-              Activate your account to download course summaries.{" "}
+              Activate your account to read course summaries.{" "}
               <Link to="/activate" className="underline font-medium">
                 Activate now
               </Link>
@@ -80,14 +82,12 @@ export default function Summaries() {
               )}
             </div>
             <Button
-              asChild
               className="rounded-full gap-2 w-full"
               disabled={!activated}
+              onClick={() => setReading(s)}
             >
-              <a href={activated ? s.file_url : undefined} target="_blank" rel="noreferrer">
-                {activated ? <Download className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
-                {activated ? "Download" : "Locked"}
-              </a>
+              {activated ? <BookOpen className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
+              {activated ? "Read Summary" : "Locked"}
             </Button>
           </div>
         ))}
@@ -99,6 +99,45 @@ export default function Summaries() {
           <p className="text-muted-foreground">No summaries available for your department yet.</p>
         </div>
       )}
+
+      <Dialog open={!!reading} onOpenChange={(open) => !open && setReading(null)}>
+        <DialogContent className="max-w-5xl h-[85vh] p-0 overflow-hidden flex flex-col">
+          {reading && (
+            <>
+              <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-border">
+                <div className="min-w-0">
+                  <h3 className="font-heading font-semibold leading-tight truncate">{reading.title}</h3>
+                  {reading.course_code && (
+                    <p className="text-xs font-mono text-muted-foreground">{reading.course_code}</p>
+                  )}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="shrink-0"
+                  onClick={() => setReading(null)}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+              <div className="flex-1 bg-muted/30">
+                <iframe
+                  src={reading.file_url}
+                  title={reading.title}
+                  className="w-full h-full"
+                  // Disables the browser toolbar/download button in supporting viewers
+                  // and blocks top-level navigation away from the embed.
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+              <div className="px-4 py-2 border-t border-border text-xs text-muted-foreground flex items-center justify-between">
+                <span>Read-only — downloading is disabled.</span>
+                {reading.file_name && <span className="truncate max-w-[60%]">{reading.file_name}</span>}
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
