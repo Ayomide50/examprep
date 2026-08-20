@@ -36,7 +36,7 @@ export default async function(req) {
     // 5. Issue a short-lived signed URL so the raw file is never publicly linkable.
     const result = await base44.asServiceRole.integrations.Core.CreateFileSignedUrl({
       file_uri: fileUri,
-      expires_in: 300,
+      expires_in: 600,
     });
 
     return Response.json({
