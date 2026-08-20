@@ -33,17 +33,27 @@ export default async function(req) {
     const fileUri = summary.file_uri || summary.file_url;
     if (!fileUri) return Response.json({ error: 'Summary file missing', code: 'no_file' }, { status: 404 });
 
-    // 5. Issue a short-lived signed URL so the raw file is never publicly linkable.
+    // 5. Issue a short-lived signed URL, fetch the bytes server-side, and stream
+    //    them back so the raw Base44 storage link is never exposed to the client.
     const result = await base44.asServiceRole.integrations.Core.CreateFileSignedUrl({
       file_uri: fileUri,
-      expires_in: 300,
+      expires_in: 60,
     });
 
-    return Response.json({
-      signed_url: result.signed_url,
-      title: summary.title,
-      file_name: summary.file_name,
-    });
+    const fileRes = await fetch(result.signed_url);
+    if (!fileRes.ok) {
+      return Response.json({ error: 'Failed to fetch summary file', code: 'fetch_failed' }, { status: 502 });
+    }
+
+    const fileName = (summary.file_name || `${summary.title || 'summary'}.pdf`).replace(/"/g, '');
+    const contentType = fileRes.headers.get('content-type') || 'application/octet-stream';
+
+    const headers = new Headers();
+    headers.set('Content-Type', contentType);
+    headers.set('Content-Disposition', `attachment; filename="${fileName}"`);
+    headers.set('Cache-Control', 'no-store');
+
+    return new Response(fileRes.body, { status: 200, headers });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }

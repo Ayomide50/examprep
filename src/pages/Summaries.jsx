@@ -4,6 +4,7 @@ import { Lock, FileText, Download, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
+import { appParams } from "@/lib/app-params";
 import { Link } from "react-router-dom";
 
 export default function Summaries() {
@@ -16,18 +17,32 @@ export default function Summaries() {
   const handleDownload = async (s) => {
     try {
       setDownloadingId(s.id);
-      const res = await base44.functions.invoke("getSummaryFileUrl", {
-        summary_id: s.id,
-      });
-      const { signed_url, file_name } = res.data;
+      const token = window.localStorage.getItem("base44_access_token");
+      const res = await fetch(
+        `/api/apps/${appParams.appId}/functions/getSummaryFileUrl`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            "X-App-Id": appParams.appId,
+            ...(appParams.functionsVersion
+              ? { "Base44-Functions-Version": appParams.functionsVersion }
+              : {}),
+          },
+          body: JSON.stringify({ summary_id: s.id }),
+        }
+      );
+      if (!res.ok) throw new Error("Download failed");
+      const blob = await res.blob();
+      const objUrl = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = signed_url;
-      a.download = file_name || `${s.title || "summary"}.pdf`;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
+      a.href = objUrl;
+      a.download = s.file_name || `${s.title || "summary"}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
+      URL.revokeObjectURL(objUrl);
     } catch (err) {
       toast({
         title: "Couldn't download summary",

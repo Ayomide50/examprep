@@ -32,7 +32,6 @@ import History from "@/pages/History";
 import Activate from "@/pages/Activate";
 import Referrals from "@/pages/Referrals";
 import Summaries from "@/pages/Summaries";
-import SummaryViewer from "@/pages/SummaryViewer";
 import Feedback from "@/pages/Feedback";
 import Profile from "@/pages/Profile";
 
@@ -88,7 +87,6 @@ const AuthenticatedApp = () => {
           <Route path="/history" element={<History />} />
           <Route path="/referrals" element={<Referrals />} />
           <Route path="/summaries" element={<Summaries />} />
-          <Route path="/summaries/:summaryId" element={<SummaryViewer />} />
           <Route path="/feedback" element={<Feedback />} />
           <Route path="/activate" element={<Activate />} />
           <Route path="/profile" element={<Profile />} />
