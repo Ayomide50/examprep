@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { ArrowLeft, Lock, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
+import PdfViewer from "@/components/PdfViewer";
 
 export default function SummaryViewer() {
   const { summaryId } = useParams();
@@ -93,12 +94,7 @@ export default function SummaryViewer() {
         <h1 className="font-heading font-semibold truncate flex-1">{state.title}</h1>
       </div>
       <div className="bg-card border border-border/60 rounded-xl overflow-hidden">
-        <iframe
-          src={`${state.url}#toolbar=0&navpanes=0&view=FitH`}
-          title={state.title || "Summary"}
-          className="w-full h-[75vh] sm:h-[80vh] border-0"
-          referrerPolicy="no-referrer"
-        />
+        <PdfViewer url={state.url} title={state.title} />
       </div>
     </div>
   );
