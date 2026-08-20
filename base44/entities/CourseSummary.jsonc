@@ -28,9 +28,9 @@
     "course_code": {
       "type": "string"
     },
-    "file_url": {
+    "file_uri": {
       "type": "string",
-      "description": "URL of the uploaded summary file (PDF, doc, etc.)"
+      "description": "Private storage URI of the uploaded summary file (PDF, doc, etc.)"
     },
     "file_name": {
       "type": "string",
@@ -44,6 +44,6 @@
   "required": [
     "title",
     "department_id",
-    "file_url"
+    "file_uri"
   ]
 }

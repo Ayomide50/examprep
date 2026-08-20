@@ -15,7 +15,7 @@ const emptyForm = {
   department_id: "",
   level: "",
   course_id: "",
-  file_url: "",
+  file_uri: "",
   file_name: "",
 };
 
@@ -53,8 +53,8 @@ export default function AdminSummaries() {
     if (!file) return;
     setUploading(true);
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      setForm((f) => ({ ...f, file_url, file_name: file.name }));
+      const { file_uri } = await base44.integrations.Core.UploadPrivateFile({ file });
+      setForm((f) => ({ ...f, file_uri, file_name: file.name }));
     } catch (err) {
       toast({ title: "File upload failed", variant: "destructive" });
     } finally {
@@ -63,7 +63,7 @@ export default function AdminSummaries() {
   };
 
   const handleSave = async () => {
-    if (!form.title || !form.department_id || !form.file_url) {
+    if (!form.title || !form.department_id || !form.file_uri) {
       toast({ title: "Title, department and a file are required", variant: "destructive" });
       return;
     }
@@ -102,7 +102,7 @@ export default function AdminSummaries() {
       department_id: item.department_id || "",
       level: item.level || "",
       course_id: item.course_id || "",
-      file_url: item.file_url || "",
+      file_uri: item.file_uri || "",
       file_name: item.file_name || "",
     });
     setShowForm(true);
@@ -294,12 +294,12 @@ export default function AdminSummaries() {
             </div>
             <div>
               <label className="text-sm font-medium mb-1 block">Summary File (PDF, DOC, etc.)</label>
-              {form.file_url ? (
+              {form.file_uri ? (
                 <div className="flex items-center justify-between bg-muted/60 border border-border rounded-lg px-3 py-2.5">
                   <span className="text-sm truncate">{form.file_name || "File uploaded"}</span>
                   <button
                     type="button"
-                    onClick={() => setForm({ ...form, file_url: "", file_name: "" })}
+                    onClick={() => setForm({ ...form, file_uri: "", file_name: "" })}
                     className="text-xs text-destructive hover:underline"
                   >
                     Remove

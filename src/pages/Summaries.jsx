@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Download, Lock, FileText, Loader2 } from "lucide-react";
+import { Lock, FileText, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Summaries() {
   const { profile, loading: profileLoading } = useStudentProfile();
   const [summaries, setSummaries] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const load = async () => {
@@ -42,7 +43,7 @@ export default function Summaries() {
       <div>
         <h1 className="font-display text-2xl md:text-3xl font-bold">Course Summaries</h1>
         <p className="text-muted-foreground mt-1">
-          Download study summaries for your department
+          Read study summaries for your department
         </p>
       </div>
 
@@ -50,9 +51,10 @@ export default function Summaries() {
         <div className="flex items-start gap-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 text-amber-800 dark:text-amber-300 rounded-xl p-4">
           <Lock className="w-5 h-5 shrink-0 mt-0.5" />
           <div className="text-sm">
-            <p className="font-medium">Activation required</p>
+            <p className="font-medium">Account Activation Required</p>
             <p className="mt-0.5">
-              Activate your account to download course summaries.{" "}
+              Your account must be activated before you can access course summaries. Please contact
+              your department representative or administrator for assistance.{" "}
               <Link to="/activate" className="underline font-medium">
                 Activate now
               </Link>
@@ -80,14 +82,12 @@ export default function Summaries() {
               )}
             </div>
             <Button
-              asChild
               className="rounded-full gap-2 w-full"
               disabled={!activated}
+              onClick={() => navigate(`/summaries/${s.id}`)}
             >
-              <a href={activated ? s.file_url : undefined} target="_blank" rel="noreferrer">
-                {activated ? <Download className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
-                {activated ? "Download" : "Locked"}
-              </a>
+              {activated ? <BookOpen className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
+              {activated ? "Read Summary" : "Locked"}
             </Button>
           </div>
         ))}
