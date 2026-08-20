@@ -1,15 +1,43 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Lock, FileText, BookOpen } from "lucide-react";
+import { Lock, FileText, Download, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export default function Summaries() {
   const { profile, loading: profileLoading } = useStudentProfile();
+  const { toast } = useToast();
   const [summaries, setSummaries] = useState([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const [downloadingId, setDownloadingId] = useState(null);
+
+  const handleDownload = async (s) => {
+    try {
+      setDownloadingId(s.id);
+      const res = await base44.functions.invoke("getSummaryFileUrl", {
+        summary_id: s.id,
+      });
+      const { signed_url, file_name } = res.data;
+      const a = document.createElement("a");
+      a.href = signed_url;
+      a.download = file_name || `${s.title || "summary"}.pdf`;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch (err) {
+      toast({
+        title: "Couldn't download summary",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setDownloadingId(null);
+    }
+  };
 
   useEffect(() => {
     const load = async () => {
@@ -43,7 +71,7 @@ export default function Summaries() {
       <div>
         <h1 className="font-display text-2xl md:text-3xl font-bold">Course Summaries</h1>
         <p className="text-muted-foreground mt-1">
-          Read study summaries for your department
+          Download study summaries for your department
         </p>
       </div>
 
@@ -83,11 +111,21 @@ export default function Summaries() {
             </div>
             <Button
               className="rounded-full gap-2 w-full"
-              disabled={!activated}
-              onClick={() => navigate(`/summaries/${s.id}`)}
+              disabled={!activated || downloadingId === s.id}
+              onClick={() => handleDownload(s)}
             >
-              {activated ? <BookOpen className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
-              {activated ? "Read Summary" : "Locked"}
+              {downloadingId === s.id ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : activated ? (
+                <Download className="w-4 h-4" />
+              ) : (
+                <Lock className="w-4 h-4" />
+              )}
+              {downloadingId === s.id
+                ? "Preparing..."
+                : activated
+                ? "Download"
+                : "Locked"}
             </Button>
           </div>
         ))}
