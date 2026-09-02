@@ -145,7 +145,9 @@ export default function StudentLayout() {
         </div>
       </main>
 
-      <WhatsAppButton />
+      {/* Hide the WhatsApp button during active tests/exams so it doesn't block the view */}
+      {!location.pathname.startsWith("/practice") &&
+        !location.pathname.startsWith("/mock-exam") && <WhatsAppButton />}
     </div>
   );
 }
