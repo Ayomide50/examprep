@@ -4,8 +4,9 @@ import { base44 } from "@/api/base44Client";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
 import { courseQueryForProfile, formatLevel } from "@/lib/access";
 import { FadeIn, StaggerGroup, StaggerItem } from "@/components/ui/FadeIn";
-import { BookOpen, Target, Trophy, Clock, ArrowRight, AlertCircle, CheckCircle, Calculator, Briefcase, TrendingUp, BarChart3, Users, Megaphone, Settings, Landmark, Laptop, Scale, Brain, Lightbulb, Store, Trash2, Loader2 } from "lucide-react";
+import { BookOpen, Target, Trophy, Clock, ArrowRight, AlertCircle, CheckCircle, Calculator, Briefcase, TrendingUp, BarChart3, Users, Megaphone, Settings, Landmark, Laptop, Scale, Brain, Lightbulb, Store, Trash2, Loader2, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import ChangeLevelDialog from "@/components/student/ChangeLevelDialog";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/components/ui/use-toast";
 import {
@@ -43,6 +44,7 @@ export default function Dashboard() {
   const [recentExams, setRecentExams] = useState([]);
   const [clearing, setClearing] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [levelDialogOpen, setLevelDialogOpen] = useState(false);
 
   useEffect(() => {
     if (profile?.department_id) {
@@ -108,9 +110,17 @@ export default function Dashboard() {
             </h1>
             <p className="text-sm text-muted-foreground mt-0.5">Track your progress and keep practicing</p>
             {profile?.department_name && (
-              <p className="text-xs font-medium text-primary mt-1">
-                {profile.department_name} • {formatLevel(profile.level)}
-              </p>
+              <div className="flex flex-wrap items-center gap-2 mt-1">
+                <p className="text-xs font-medium text-primary">
+                  {profile.department_name} • {formatLevel(profile.level)}
+                </p>
+                <button
+                  onClick={() => setLevelDialogOpen(true)}
+                  className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-primary transition-colors"
+                >
+                  <GraduationCap className="w-3.5 h-3.5" /> Change Academic Level
+                </button>
+              </div>
             )}
           </div>
         </FadeIn>
@@ -153,13 +163,15 @@ export default function Dashboard() {
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
           <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
           <div className="flex-1">
-            <p className="font-medium text-amber-900">Free Trial Account</p>
+            <p className="font-medium text-amber-900">
+              {profile?.level ? `${formatLevel(profile.level)} Not Activated` : "Free Trial Account"}
+            </p>
             <p className="text-sm text-amber-700 mt-0.5">
-              You have access to 3 free questions per course. Activate your account for full access to 1000+ questions and mock exams.
+              You have access to 3 free questions per course. Activate your {profile?.level ? formatLevel(profile.level) : ""} account for full access to all questions and mock exams.
             </p>
             <Link to="/activate">
               <Button size="sm" className="mt-3 rounded-full" variant="outline">
-                Activate Now <ArrowRight className="w-3 h-3 ml-1" />
+                Activate {profile?.level ? formatLevel(profile.level) : "Now"} <ArrowRight className="w-3 h-3 ml-1" />
               </Button>
             </Link>
           </div>
@@ -171,7 +183,9 @@ export default function Dashboard() {
           <CheckCircle className="w-5 h-5 text-green-600 shrink-0" />
           <div>
             <p className="font-medium text-green-900">Premium Account Active</p>
-            <p className="text-sm text-green-700 mt-0.5">Full access to all courses, questions, and mock exams</p>
+            <p className="text-sm text-green-700 mt-0.5">
+              Full access to all {profile?.level ? formatLevel(profile.level) : ""} courses, questions, and mock exams
+            </p>
           </div>
         </div>
       )}
@@ -259,6 +273,13 @@ export default function Dashboard() {
           </div>
         </FadeIn>
       )}
+
+      <ChangeLevelDialog
+        profile={profile}
+        open={levelDialogOpen}
+        onOpenChange={setLevelDialogOpen}
+        onChanged={refresh}
+      />
     </div>
   );
 }

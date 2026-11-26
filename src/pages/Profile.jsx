@@ -18,6 +18,7 @@ import {
 import { User, Mail, Shield, Calendar, CheckCircle, XCircle, Camera, Pencil, Trash2, Loader2, Save, X, GraduationCap } from "lucide-react";
 import moment from "moment";
 import { formatLevel } from "@/lib/access";
+import AcademicLevelCard from "@/components/student/AcademicLevelCard";
 
 export default function Profile() {
   const { profile, user, loading, refresh } = useStudentProfile();
@@ -236,11 +237,13 @@ export default function Profile() {
             </div>
             {profile?.is_activated ? (
               <span className="flex items-center gap-1.5 text-sm font-medium text-green-600">
-                <CheckCircle className="w-4 h-4" /> Premium Active
+                <CheckCircle className="w-4 h-4" /> Active
+                {profile?.level ? ` • ${formatLevel(profile.level)}` : ""}
               </span>
             ) : (
               <span className="flex items-center gap-1.5 text-sm font-medium text-amber-600">
-                <XCircle className="w-4 h-4" /> Free Trial
+                <XCircle className="w-4 h-4" /> Not Activated
+                {profile?.level ? ` • ${formatLevel(profile.level)}` : ""}
               </span>
             )}
           </div>
@@ -268,6 +271,8 @@ export default function Profile() {
           </div>
         </div>
       </div>
+
+      <AcademicLevelCard profile={profile} onChanged={refresh} />
 
       {/* Stats */}
       <div className="bg-card border border-border/60 rounded-xl p-6">

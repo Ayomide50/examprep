@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
 import { formatLevel } from "@/lib/access";
+import { activationFieldsForLevel } from "@/lib/levels";
 
 export default function AssignDepartmentDialog({ student, departments, onClose, onSaved }) {
   const { toast } = useToast();
@@ -27,11 +28,24 @@ export default function AssignDepartmentDialog({ student, departments, onClose, 
     if (!deptId || !level) return;
     setSaving(true);
     try {
-      await base44.entities.StudentProfile.update(student.id, {
+      const updates = {
         department_id: deptId,
         department_name: dept.name,
         level,
-      });
+      };
+
+      // Activation is tracked per level, so keep the profile status in sync
+      // whenever an admin moves a student to a different level.
+      if (student.level !== level) {
+        const activations = await base44.entities.LevelActivation.filter(
+          { user_id: student.user_id },
+          "-created_date",
+          100
+        );
+        Object.assign(updates, activationFieldsForLevel(activations, level));
+      }
+
+      await base44.entities.StudentProfile.update(student.id, updates);
       toast({ title: "Department assigned" });
       onSaved();
     } catch (err) {

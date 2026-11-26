@@ -86,7 +86,7 @@ export default function DepartmentSetup({ profile, onDone }) {
           </Button>
 
           <p className="text-xs text-muted-foreground text-center">
-            This cannot be changed later. Contact the admin if you need to switch department or level.
+            You can change your academic level anytime from your dashboard. Contact the admin if you need to switch department.
           </p>
         </div>
       </div>

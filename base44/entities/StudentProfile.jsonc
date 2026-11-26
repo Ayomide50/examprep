@@ -21,7 +21,26 @@
     },
     "level": {
       "type": "string",
-      "description": "Academic level assigned e.g. 100"
+      "description": "Current academic level e.g. 100"
+    },
+    "level_history": {
+      "type": "array",
+      "description": "Log of academic level changes, kept permanently",
+      "items": {
+        "type": "object",
+        "properties": {
+          "previous_level": {
+            "type": "string"
+          },
+          "level": {
+            "type": "string"
+          },
+          "changed_date": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
     },
     "referral_code": {
       "type": "string",
@@ -37,7 +56,8 @@
     },
     "is_activated": {
       "type": "boolean",
-      "default": false
+      "default": false,
+      "description": "Whether the student's CURRENT academic level is activated"
     },
     "activation_code": {
       "type": "string"
