@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
 import { PASS_MARK, shuffleArray } from "@/lib/constants";
 import { courseMatchesProfile } from "@/lib/access";
+import { bumpLevelStats } from "@/lib/levels";
 import { Clock, ChevronLeft, ChevronRight, Flag, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -123,6 +124,11 @@ export default function MockExam() {
         total_mock_exams: (profile.total_mock_exams || 0) + 1,
         total_questions_answered: (profile.total_questions_answered || 0) + Object.keys(answers).length,
         total_correct: (profile.total_correct || 0) + correct,
+        level_stats: bumpLevelStats(profile, profile.level, {
+          mock_exams: 1,
+          answered: Object.keys(answers).length,
+          correct,
+        }),
       });
       setFinished(true);
       navigate(`/mock-exam-result/${created.id}`);

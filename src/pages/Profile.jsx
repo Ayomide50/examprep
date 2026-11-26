@@ -18,6 +18,7 @@ import {
 import { User, Mail, Shield, Calendar, CheckCircle, XCircle, Camera, Pencil, Trash2, Loader2, Save, X, GraduationCap } from "lucide-react";
 import moment from "moment";
 import { formatLevel } from "@/lib/access";
+import { levelStats } from "@/lib/levels";
 import AcademicLevelCard from "@/components/student/AcademicLevelCard";
 
 export default function Profile() {
@@ -36,6 +37,8 @@ export default function Profile() {
 
   const displayName = profile?.full_name || user?.full_name || "Student";
   const profileImage = profile?.profile_image;
+  const stats = levelStats(profile, profile.level);
+  const accuracy = stats.answered > 0 ? Math.round((stats.correct / stats.answered) * 100) : 0;
 
   const handleSaveName = async () => {
     if (!nameValue.trim()) {
@@ -100,6 +103,7 @@ export default function Profile() {
         total_correct: 0,
         total_practice_sessions: 0,
         total_mock_exams: 0,
+        level_stats: {},
       });
       await refresh();
       setClearStatsOpen(false);
@@ -312,23 +316,19 @@ export default function Profile() {
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div className="text-center p-4 bg-muted/50 rounded-lg">
-            <p className="font-display text-2xl font-bold">{profile?.total_questions_answered || 0}</p>
+            <p className="font-display text-2xl font-bold">{stats.answered}</p>
             <p className="text-xs text-muted-foreground">Questions Answered</p>
           </div>
           <div className="text-center p-4 bg-muted/50 rounded-lg">
-            <p className="font-display text-2xl font-bold">
-              {profile?.total_questions_answered > 0
-                ? Math.round(((profile?.total_correct || 0) / profile.total_questions_answered) * 100)
-                : 0}%
-            </p>
+            <p className="font-display text-2xl font-bold">{accuracy}%</p>
             <p className="text-xs text-muted-foreground">Accuracy</p>
           </div>
           <div className="text-center p-4 bg-muted/50 rounded-lg">
-            <p className="font-display text-2xl font-bold">{profile?.total_mock_exams || 0}</p>
+            <p className="font-display text-2xl font-bold">{stats.mock_exams}</p>
             <p className="text-xs text-muted-foreground">Mock Exams</p>
           </div>
           <div className="text-center p-4 bg-muted/50 rounded-lg">
-            <p className="font-display text-2xl font-bold">{profile?.total_practice_sessions || 0}</p>
+            <p className="font-display text-2xl font-bold">{stats.practice_sessions}</p>
             <p className="text-xs text-muted-foreground">Practice Sessions</p>
           </div>
         </div>

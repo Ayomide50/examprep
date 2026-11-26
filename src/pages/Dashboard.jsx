@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
 import { courseQueryForProfile, formatLevel } from "@/lib/access";
+import { levelStats } from "@/lib/levels";
 import { FadeIn, StaggerGroup, StaggerItem } from "@/components/ui/FadeIn";
 import { BookOpen, Target, Trophy, Clock, ArrowRight, AlertCircle, CheckCircle, Calculator, Briefcase, TrendingUp, BarChart3, Users, Megaphone, Settings, Landmark, Laptop, Scale, Brain, Lightbulb, Store, Trash2, Loader2, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -53,11 +54,14 @@ export default function Dashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.department_id, profile?.level]);
 
+  // Recent mock exams are limited to the current academic level.
   useEffect(() => {
-    if (user) {
-      base44.entities.MockExamResult.filter({ user_id: user.id }, "-created_date", 5).then(setRecentExams);
-    }
-  }, [user]);
+    if (!user) return;
+    const levelCourseIds = new Set(courses.map((c) => c.id));
+    base44.entities.MockExamResult.filter({ user_id: user.id }, "-created_date", 30).then((items) => {
+      setRecentExams(items.filter((e) => levelCourseIds.has(e.course_id)).slice(0, 5));
+    });
+  }, [user, courses]);
 
   const handleClearProgress = async () => {
     setClearing(true);
@@ -73,6 +77,7 @@ export default function Dashboard() {
         total_correct: 0,
         total_practice_sessions: 0,
         total_mock_exams: 0,
+        level_stats: {},
       });
 
       setRecentExams([]);
@@ -95,9 +100,8 @@ export default function Dashboard() {
     );
   }
 
-  const accuracy = profile?.total_questions_answered > 0
-    ? Math.round((profile.total_correct / profile.total_questions_answered) * 100)
-    : 0;
+  const stats = levelStats(profile, profile.level);
+  const accuracy = stats.answered > 0 ? Math.round((stats.correct / stats.answered) * 100) : 0;
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
@@ -193,10 +197,10 @@ export default function Dashboard() {
       {/* Stats */}
       <StaggerGroup className="grid grid-cols-2 md:grid-cols-4 gap-4" stagger={0.1}>
         {[
-          { label: "Questions Answered", value: profile?.total_questions_answered || 0, icon: BookOpen, color: "text-blue-600" },
+          { label: "Questions Answered", value: stats.answered, icon: BookOpen, color: "text-blue-600" },
           { label: "Accuracy", value: `${accuracy}%`, icon: Target, color: "text-green-600" },
-          { label: "Mock Exams", value: profile?.total_mock_exams || 0, icon: Trophy, color: "text-purple-600" },
-          { label: "Practice Sessions", value: profile?.total_practice_sessions || 0, icon: Clock, color: "text-orange-600" },
+          { label: "Mock Exams", value: stats.mock_exams, icon: Trophy, color: "text-purple-600" },
+          { label: "Practice Sessions", value: stats.practice_sessions, icon: Clock, color: "text-orange-600" },
         ].map((stat) => (
           <StaggerItem key={stat.label}>
             <div className="bg-card border border-border/60 rounded-xl p-5 h-full">

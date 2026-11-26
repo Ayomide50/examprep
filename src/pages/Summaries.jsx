@@ -65,7 +65,8 @@ export default function Summaries() {
         "-created_date",
         200
       );
-      setSummaries(items);
+      // Current level summaries plus department-wide ones (no level set).
+      setSummaries(items.filter((s) => !s.level || s.level === profile.level));
       setLoading(false);
     };
     load();

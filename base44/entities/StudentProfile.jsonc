@@ -42,6 +42,10 @@
         }
       }
     },
+    "level_stats": {
+      "type": "object",
+      "description": "Per-level progress counters keyed by academic level, e.g. {\"100\": {\"answered\": 120, \"correct\": 90, \"mock_exams\": 3, \"practice_sessions\": 5}}"
+    },
     "referral_code": {
       "type": "string",
       "description": "Optional referral code entered at registration"

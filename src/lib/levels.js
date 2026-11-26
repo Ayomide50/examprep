@@ -34,6 +34,26 @@ export function activationFieldsForLevel(activations, level) {
   };
 }
 
+// Per-level progress counters stored on the student profile.
+export function emptyLevelStats() {
+  return { answered: 0, correct: 0, mock_exams: 0, practice_sessions: 0 };
+}
+
+export function levelStats(profile, level) {
+  const stored = profile?.level_stats?.[level || "100"];
+  return { ...emptyLevelStats(), ...(stored || {}) };
+}
+
+export function bumpLevelStats(profile, level, delta) {
+  const key = level || "100";
+  const current = levelStats(profile, key);
+  const next = {};
+  Object.keys(emptyLevelStats()).forEach((k) => {
+    next[k] = (current[k] || 0) + (delta[k] || 0);
+  });
+  return { ...(profile?.level_stats || {}), [key]: next };
+}
+
 const DURATION_DAYS = {
   "30_days": 30,
   "60_days": 60,

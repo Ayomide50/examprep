@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
 import { FREE_TRIAL_LIMIT, getWhatsAppLink, shuffleArray } from "@/lib/constants";
 import { courseMatchesProfile } from "@/lib/access";
+import { bumpLevelStats } from "@/lib/levels";
 import { ArrowLeft, ArrowRight, RotateCcw, MessageCircle, Lock, BookOpen, Bookmark, Trophy, Home, Eye, CheckCircle, XCircle, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -125,6 +126,7 @@ export default function PracticeMode() {
       const updateData = {
         total_questions_answered: (profile.total_questions_answered || 0) + newAnswered,
         total_correct: (profile.total_correct || 0) + newCorrect,
+        level_stats: bumpLevelStats(profile, profile.level, { answered: 1, correct: isCorrect ? 1 : 0 }),
       };
       if (!fullAccess) {
         const freeUsed = { ...(profile.free_trial_used || {}) };
@@ -137,6 +139,7 @@ export default function PracticeMode() {
       await base44.entities.StudentProfile.update(profile.id, updateData);
       // Update local profile so subsequent answers use the updated count
       profile.free_trial_used = updateData.free_trial_used;
+      profile.level_stats = updateData.level_stats;
       if (hitTrialLimit) setTrialBlocked(true);
     } catch (err) {
       console.error(err);
@@ -166,6 +169,7 @@ export default function PracticeMode() {
 
       await base44.entities.StudentProfile.update(profile.id, {
         total_practice_sessions: (profile.total_practice_sessions || 0) + 1,
+        level_stats: bumpLevelStats(profile, profile.level, { practice_sessions: 1 }),
       });
       refresh();
     } catch (err) {

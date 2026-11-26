@@ -117,7 +117,9 @@ export default function AdminSummaries() {
   const formDept = departments.find((d) => d.id === form.department_id);
   const formLevels = formDept?.levels || [];
   const formCourses = courses.filter(
-    (c) => !form.department_id || c.department_id === form.department_id
+    (c) =>
+      (!form.department_id || c.department_id === form.department_id) &&
+      (!form.level || c.level === form.level)
   );
 
   const filtered = summaries.filter(
@@ -239,8 +241,8 @@ export default function AdminSummaries() {
               <div>
                 <label className="text-sm font-medium mb-1 block">Level (optional)</label>
                 <Select
-                  value={form.level}
-                  onValueChange={(v) => setForm({ ...form, level: v })}
+                  value={form.level || "all"}
+                  onValueChange={(v) => setForm({ ...form, level: v === "all" ? "" : v, course_id: "" })}
                   disabled={!form.department_id}
                 >
                   <SelectTrigger>
