@@ -8,6 +8,7 @@ import { FadeIn, StaggerGroup, StaggerItem } from "@/components/ui/FadeIn";
 import { BookOpen, Target, Trophy, Clock, ArrowRight, AlertCircle, CheckCircle, Calculator, Briefcase, TrendingUp, BarChart3, Users, Megaphone, Settings, Landmark, Laptop, Scale, Brain, Lightbulb, Store, Trash2, Loader2, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ChangeLevelDialog from "@/components/student/ChangeLevelDialog";
+import StreakCard from "@/components/student/StreakCard";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/components/ui/use-toast";
 import {
@@ -211,6 +212,11 @@ export default function Dashboard() {
           </StaggerItem>
         ))}
       </StaggerGroup>
+
+      {/* Daily streak */}
+      <FadeIn>
+        <StreakCard profile={profile} />
+      </FadeIn>
 
       {/* Courses Grid */}
       <FadeIn>

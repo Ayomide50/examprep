@@ -5,6 +5,7 @@ import { useStudentProfile } from "@/hooks/useStudentProfile";
 import { FREE_TRIAL_LIMIT, getWhatsAppLink, shuffleArray } from "@/lib/constants";
 import { courseMatchesProfile } from "@/lib/access";
 import { bumpLevelStats } from "@/lib/levels";
+import { recordDailyActivity } from "@/lib/streak";
 import { ArrowLeft, ArrowRight, RotateCcw, MessageCircle, Lock, BookOpen, Bookmark, Trophy, Home, Eye, CheckCircle, XCircle, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -171,6 +172,7 @@ export default function PracticeMode() {
         total_practice_sessions: (profile.total_practice_sessions || 0) + 1,
         level_stats: bumpLevelStats(profile, profile.level, { practice_sessions: 1 }),
       });
+      await recordDailyActivity(profile);
       refresh();
     } catch (err) {
       console.error(err);

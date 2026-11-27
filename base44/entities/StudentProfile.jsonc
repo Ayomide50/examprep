@@ -46,6 +46,34 @@
       "type": "object",
       "description": "Per-level progress counters keyed by academic level, e.g. {\"100\": {\"answered\": 120, \"correct\": 90, \"mock_exams\": 3, \"practice_sessions\": 5}}"
     },
+    "current_streak": {
+      "type": "number",
+      "default": 0,
+      "description": "Consecutive days of learning activity up to the last activity date"
+    },
+    "longest_streak": {
+      "type": "number",
+      "default": 0,
+      "description": "Best consecutive-day streak ever achieved"
+    },
+    "last_activity_date": {
+      "type": "string",
+      "description": "Local date (YYYY-MM-DD) of the last counted learning activity"
+    },
+    "streak_history": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Dates (YYYY-MM-DD) on which the student was active, most recent last"
+    },
+    "streak_milestones": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "description": "Streak milestones already reached, e.g. [3, 7, 14]"
+    },
     "referral_code": {
       "type": "string",
       "description": "Optional referral code entered at registration"

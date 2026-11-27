@@ -5,6 +5,7 @@ import { useStudentProfile } from "@/hooks/useStudentProfile";
 import { PASS_MARK, shuffleArray } from "@/lib/constants";
 import { courseMatchesProfile } from "@/lib/access";
 import { bumpLevelStats } from "@/lib/levels";
+import { recordDailyActivity } from "@/lib/streak";
 import { Clock, ChevronLeft, ChevronRight, Flag, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -130,6 +131,7 @@ export default function MockExam() {
           correct,
         }),
       });
+      await recordDailyActivity(profile);
       setFinished(true);
       navigate(`/mock-exam-result/${created.id}`);
     } catch (err) {
