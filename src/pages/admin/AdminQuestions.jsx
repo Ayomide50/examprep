@@ -38,8 +38,8 @@ export default function AdminQuestions() {
 
   const syncCourseCount = async (courseId) => {
     if (!courseId) return;
-    const courseQuestions = await base44.entities.Question.filter({ course_id: courseId, is_active: true }, null, 1000);
-    await base44.entities.Course.update(courseId, { question_count: courseQuestions.length });
+    const total = await base44.entities.Question.count({ course_id: courseId, is_active: true });
+    await base44.entities.Course.update(courseId, { question_count: total });
   };
 
   const load = async () => {

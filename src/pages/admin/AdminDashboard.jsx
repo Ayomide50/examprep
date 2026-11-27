@@ -7,38 +7,21 @@ export default function AdminDashboard() {
   const [recentCodes, setRecentCodes] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+useEffect(() => {
+    // Counts come from the server: no bulk downloads, no paging loops.
     Promise.all([
-      base44.entities.StudentProfile.list("-created_date", 1000),
-      base44.entities.Course.list("-created_date", 1000),
-      base44.entities.Question.list("-created_date", 1000),
-      base44.entities.ActivationCode.list("-created_date", 1000),
-      base44.entities.Department.list("-created_date", 500),
-    ]).then(([students, courses, questions, codes, departments]) => {
-      let questionCount = questions.length;
-      const fetchRemaining = async (skip) => {
-        const batch = await base44.entities.Question.list("-created_date", 1000, skip);
-        questionCount += batch.length;
-        if (batch.length === 1000) {
-          await fetchRemaining(skip + 1000);
-        }
-      };
-      (async () => {
-        if (questions.length === 1000) {
-          await fetchRemaining(1000);
-        }
-        setStats({
-          students: students.length,
-          courses: courses.length,
-          questions: questionCount,
-          codes: codes.length,
-          usedCodes: codes.filter((c) => c.status === "used").length,
-          activeStudents: students.filter((s) => s.is_activated).length,
-          departments: departments.length,
-        });
-        setRecentCodes(codes.slice(0, 10));
-        setLoading(false);
-      })();
+      base44.entities.StudentProfile.count(),
+      base44.entities.StudentProfile.count({ is_activated: true }),
+      base44.entities.Department.count(),
+      base44.entities.Course.count(),
+      base44.entities.Question.count(),
+      base44.entities.ActivationCode.count(),
+      base44.entities.ActivationCode.count({ status: "used" }),
+      base44.entities.ActivationCode.list("-created_date", 10),
+    ]).then(([students, activeStudents, departments, courses, questions, codes, usedCodes, recentCodes]) => {
+      setStats({ students, activeStudents, departments, courses, questions, codes, usedCodes });
+      setRecentCodes(recentCodes);
+      setLoading(false);
     });
   }, []);
 
