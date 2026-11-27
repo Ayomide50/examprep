@@ -74,6 +74,10 @@
       },
       "description": "Streak milestones already reached, e.g. [3, 7, 14]"
     },
+    "reminder_prefs": {
+      "type": "object",
+      "description": "Which study reminders this student wants, e.g. {\"daily\": true, \"streak\": true, \"milestones\": true, \"weekly\": true}"
+    },
     "referral_code": {
       "type": "string",
       "description": "Optional referral code entered at registration"

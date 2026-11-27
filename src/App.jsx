@@ -29,6 +29,7 @@ import MockExams from "@/pages/MockExams";
 import MockExam from "@/pages/MockExam";
 import MockExamResult from "@/pages/MockExamResult";
 import History from "@/pages/History";
+import Notifications from "@/pages/Notifications";
 import Activate from "@/pages/Activate";
 import Referrals from "@/pages/Referrals";
 import Summaries from "@/pages/Summaries";
@@ -85,6 +86,7 @@ const AuthenticatedApp = () => {
           <Route path="/mock-exam/:courseId" element={<MockExam />} />
           <Route path="/mock-exam-result/:resultId" element={<MockExamResult />} />
           <Route path="/history" element={<History />} />
+          <Route path="/notifications" element={<Notifications />} />
           <Route path="/referrals" element={<Referrals />} />
           <Route path="/summaries" element={<Summaries />} />
           <Route path="/feedback" element={<Feedback />} />

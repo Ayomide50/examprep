@@ -1,0 +1,95 @@
+{
+  "name": "Notification",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "Reference to the student's User record"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "daily",
+        "streak",
+        "milestone",
+        "weekly"
+      ],
+      "enumColors": [
+        "blue",
+        "orange",
+        "purple",
+        "green"
+      ],
+      "description": "Kind of study reminder"
+    },
+    "title": {
+      "type": "string"
+    },
+    "message": {
+      "type": "string"
+    },
+    "action_label": {
+      "type": "string",
+      "description": "Label of the button that opens the related page"
+    },
+    "action_url": {
+      "type": "string",
+      "description": "In-app path the notification points to"
+    },
+    "dedupe_key": {
+      "type": "string",
+      "description": "Unique per student per reminder period, e.g. daily:2026-11-27"
+    },
+    "is_read": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "user_id",
+    "type",
+    "title",
+    "message"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

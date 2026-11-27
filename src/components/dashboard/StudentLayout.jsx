@@ -1,14 +1,17 @@
 import React, { useState } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
-import { BookOpen, LayoutDashboard, GraduationCap, FileText, Clock, KeyRound, LogOut, Menu, X, User, Pencil, Gift, Download, MessageSquare } from "lucide-react";
+import { Bell, BookOpen, LayoutDashboard, GraduationCap, FileText, Clock, KeyRound, LogOut, Menu, X, User, Pencil, Gift, Download, MessageSquare } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
+import { useNotifications } from "@/hooks/useNotifications";
+import NotificationBell from "@/components/student/NotificationBell";
 import DepartmentSetup from "@/components/dashboard/DepartmentSetup";
 
 const navItems = [
   { path: "/dashboard", icon: LayoutDashboard, label: "Dashboard", match: (p) => p === "/dashboard" },
+  { path: "/notifications", icon: Bell, label: "Notifications", match: (p) => p === "/notifications" },
   { path: "/courses", icon: GraduationCap, label: "Courses", match: (p) => p.startsWith("/courses") },
   { path: "/courses", icon: Pencil, label: "Practice", match: (p) => p.startsWith("/practice") },
   { path: "/mock-exams", icon: FileText, label: "Mock Exams", match: (p) => p.startsWith("/mock-exam") },
@@ -23,6 +26,8 @@ export default function StudentLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
   const { profile, loading: profileLoading, refresh } = useStudentProfile();
+  const notifications = useNotifications(profile);
+  const unread = notifications.unread;
 
   const handleLogout = () => {
     base44.auth.logout("/");
@@ -63,6 +68,7 @@ export default function StudentLayout() {
           <span className="font-display font-bold">MyStudyApp</span>
         </Link>
         <div className="flex items-center gap-1">
+          <NotificationBell unread={unread} />
           <ThemeToggle />
           <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2">
             {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -94,6 +100,11 @@ export default function StudentLayout() {
                 >
                   <item.icon className="w-4 h-4" />
                   {item.label}
+                  {item.label === "Notifications" && unread > 0 && (
+                    <span className="ml-auto min-w-[18px] h-[18px] px-1 rounded-full bg-destructive text-destructive-foreground text-[10px] font-semibold flex items-center justify-center">
+                      {unread > 9 ? "9+" : unread}
+                    </span>
+                  )}
                 </Link>
               );
             })}
@@ -140,7 +151,7 @@ export default function StudentLayout() {
               <div className="w-8 h-8 border-4 border-muted border-t-primary rounded-full animate-spin" />
             </div>
           ) : (
-            <Outlet />
+            <Outlet context={{ profile, notifications }} />
           )}
         </div>
       </main>
